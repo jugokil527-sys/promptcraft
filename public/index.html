@@ -1,0 +1,558 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>AI Mini App Builder</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    :root {
+      --bg:       var(--tg-theme-bg-color,          #ffffff);
+      --sec-bg:   var(--tg-theme-secondary-bg-color,#f4f4f5);
+      --text:     var(--tg-theme-text-color,         #1a1a1a);
+      --hint:     var(--tg-theme-hint-color,         #8e8e93);
+      --link:     var(--tg-theme-link-color,         #2563eb);
+      --btn:      var(--tg-theme-button-color,       #2563eb);
+      --btn-text: var(--tg-theme-button-text-color,  #ffffff);
+      --danger:   #ef4444;
+      --radius: 14px;
+      --radius-sm: 10px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-tap-highlight-color: transparent; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg); color: var(--text);
+      min-height: 100dvh; padding-bottom: env(safe-area-inset-bottom);
+    }
+    .app { max-width: 600px; margin: 0 auto; padding-bottom: 100px; }
+
+    /* ── Header ───────────────────────────────── */
+    .header {
+      position: sticky; top: 0; z-index: 10;
+      background: var(--bg); border-bottom: 1px solid rgba(128,128,128,.1);
+      padding: 12px 16px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .header-left { display: flex; align-items: center; gap: 10px; }
+    .header-logo { font-size: 24px; }
+    .header h1 { font-size: 17px; font-weight: 700; }
+    .header-sub { font-size: 12px; color: var(--hint); }
+    .header-actions { display: flex; gap: 6px; }
+    .btn-icon {
+      width: 36px; height: 36px; border: none; border-radius: var(--radius-sm);
+      background: var(--sec-bg); color: var(--text); font-size: 16px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: opacity .15s;
+    }
+    .btn-icon:active { opacity: .6; }
+    .btn-save {
+      background: var(--btn); color: var(--btn-text);
+      border: none; border-radius: var(--radius-sm);
+      padding: 8px 14px; font-size: 13px; font-weight: 600;
+      cursor: pointer; transition: all .15s;
+    }
+    .btn-save:active { opacity: .7; }
+    .btn-save.ok { background: #16a34a; }
+
+    /* ── Tabs ──────────────────────────────────── */
+    .tabs {
+      display: flex; background: var(--sec-bg);
+      margin: 12px 16px; border-radius: var(--radius); padding: 3px; gap: 3px;
+    }
+    .tab {
+      flex: 1; padding: 9px 4px; border: none; border-radius: calc(var(--radius) - 3px);
+      font-size: 13px; font-weight: 600; cursor: pointer;
+      background: transparent; color: var(--hint); transition: all .15s;
+    }
+    .tab.active { background: var(--bg); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+
+    /* ── Section ───────────────────────────────── */
+    .section { padding: 0 16px; margin-bottom: 20px; }
+    .section-label {
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .05em; color: var(--hint); margin-bottom: 8px;
+    }
+
+    /* ── Field ─────────────────────────────────── */
+    .field {
+      width: 100%; padding: 12px 14px;
+      background: var(--sec-bg); color: var(--text);
+      border: 1.5px solid transparent; border-radius: var(--radius-sm);
+      font-size: 15px; outline: none; transition: border-color .15s;
+    }
+    .field:focus { border-color: var(--btn); }
+    .field::placeholder { color: var(--hint); }
+    textarea.field { resize: none; min-height: 80px; font-family: inherit; line-height: 1.5; }
+
+    /* ── Block type cards ──────────────────────── */
+    .block-types { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+    .bt {
+      border: 1.5px solid rgba(128,128,128,.12); background: var(--sec-bg);
+      border-radius: var(--radius-sm); padding: 12px; cursor: pointer;
+      text-align: left; transition: all .15s;
+    }
+    .bt .bt-head { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+    .bt .bt-icon { font-size: 18px; }
+    .bt .bt-name { font-size: 13px; font-weight: 700; }
+    .bt .bt-desc { font-size: 11px; color: var(--hint); line-height: 1.35; }
+    .bt.active  { border-color: var(--btn); background: color-mix(in srgb, var(--btn) 8%, var(--bg)); }
+    .bt:active  { opacity: .7; }
+
+    /* ── Block list ────────────────────────────── */
+    .block-item {
+      display: flex; align-items: flex-start; gap: 10px;
+      background: var(--bg); border-radius: var(--radius-sm);
+      padding: 10px 12px; margin-bottom: 8px;
+      border: 1px solid rgba(128,128,128,.1);
+    }
+    .badge {
+      flex-shrink: 0; padding: 3px 8px; border-radius: 6px;
+      font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .03em;
+    }
+    .badge-input  { background: #dbeafe; color: #1d4ed8; }
+    .badge-prompt { background: #f3e8ff; color: #7c3aed; }
+    .badge-rule   { background: #fef3c7; color: #92400e; }
+    .badge-output { background: #dcfce7; color: #166534; }
+    .block-val { flex: 1; font-size: 14px; line-height: 1.4; word-break: break-word; padding-top: 1px; }
+    .block-del {
+      flex-shrink: 0; border: none; background: none;
+      color: var(--hint); cursor: pointer; font-size: 18px;
+      padding: 0 2px; transition: color .1s;
+    }
+    .block-del:active { color: var(--danger); }
+    .empty-state { text-align: center; padding: 32px 16px; color: var(--hint); }
+    .empty-state .es-icon { font-size: 40px; margin-bottom: 8px; }
+    .empty-state p { font-size: 14px; line-height: 1.5; }
+
+    /* ── Buttons ───────────────────────────────── */
+    .btn-add {
+      width: 100%; padding: 11px;
+      background: color-mix(in srgb, var(--btn) 10%, var(--bg));
+      color: var(--btn); border: 1.5px dashed var(--btn);
+      border-radius: var(--radius-sm); font-size: 14px; font-weight: 600;
+      cursor: pointer; transition: opacity .15s;
+    }
+    .btn-add:active { opacity: .75; }
+
+    .btn-run {
+      width: 100%; padding: 14px;
+      background: var(--btn); color: var(--btn-text);
+      border: none; border-radius: var(--radius);
+      font-size: 16px; font-weight: 700; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: opacity .15s;
+    }
+    .btn-run:active { opacity: .8; }
+    .btn-run:disabled { opacity: .45; cursor: default; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner { width: 18px; height: 18px; border: 2.5px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin .6s linear infinite; }
+
+    /* ── Result ────────────────────────────────── */
+    .result-box {
+      background: var(--sec-bg); border-radius: var(--radius);
+      padding: 14px 16px; white-space: pre-wrap; word-break: break-word;
+      font-size: 14px; line-height: 1.6; min-height: 60px;
+    }
+
+    /* ── Project list ──────────────────────────── */
+    .project-card {
+      display: flex; align-items: center; gap: 12px;
+      background: var(--sec-bg); border-radius: var(--radius);
+      padding: 14px 16px; margin-bottom: 10px; cursor: pointer;
+      transition: opacity .15s;
+    }
+    .project-card:active { opacity: .7; }
+    .pc-icon { font-size: 26px; }
+    .pc-info { flex: 1; min-width: 0; }
+    .pc-name { font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pc-meta { font-size: 12px; color: var(--hint); margin-top: 2px; }
+    .pc-arrow { color: var(--hint); font-size: 18px; }
+
+    /* ── Import row ────────────────────────────── */
+    .import-row {
+      display: flex; gap: 8px; margin-bottom: 16px;
+    }
+    .btn-secondary {
+      flex: 1; padding: 10px 12px; border: 1.5px solid rgba(128,128,128,.15);
+      background: var(--sec-bg); color: var(--text); border-radius: var(--radius-sm);
+      font-size: 13px; font-weight: 600; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      transition: opacity .15s;
+    }
+    .btn-secondary:active { opacity: .65; }
+
+    /* ── Toast ─────────────────────────────────── */
+    .toast {
+      position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px);
+      background: rgba(0,0,0,.82); color: #fff;
+      padding: 10px 20px; border-radius: 20px; font-size: 14px; font-weight: 500;
+      pointer-events: none; opacity: 0; transition: all .25s; z-index: 99; white-space: nowrap;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    .hidden { display: none !important; }
+
+    /* hidden file input */
+    #importFile { display: none; }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-left">
+      <span class="header-logo">⚡</span>
+      <div>
+        <h1 id="headerTitle">AI App Builder</h1>
+        <div class="header-sub" id="headerSub">новый проект</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="btn-icon" id="exportBtn" title="Экспорт JSON">📎</button>
+      <button class="btn-save"  id="saveBtn">Сохранить</button>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" data-tab="builder">Конструктор</button>
+    <button class="tab"        data-tab="projects">Проекты</button>
+  </div>
+
+  <!-- ═══ TAB: Builder ═══════════════════════════════════════════ -->
+  <div id="tab-builder">
+
+    <!-- Project name -->
+    <div class="section">
+      <div class="section-label">Название проекта</div>
+      <input class="field" id="projectName" placeholder="Например: Бот-помощник для саппорта" />
+    </div>
+
+    <!-- Block type picker -->
+    <div class="section">
+      <div class="section-label">Добавить блок</div>
+      <div class="block-types">
+        <button class="bt active" data-type="input">
+          <div class="bt-head"><span class="bt-icon">📥</span><span class="bt-name">Input</span></div>
+          <div class="bt-desc">Данные от пользователя: имя, тема, запрос</div>
+        </button>
+        <button class="bt" data-type="prompt">
+          <div class="bt-head"><span class="bt-icon">🧠</span><span class="bt-name">Prompt</span></div>
+          <div class="bt-desc">Инструкция AI: что делать с данными</div>
+        </button>
+        <button class="bt" data-type="rule">
+          <div class="bt-head"><span class="bt-icon">📏</span><span class="bt-name">Rule</span></div>
+          <div class="bt-desc">Ограничение: тон, длина, формат, язык</div>
+        </button>
+        <button class="bt" data-type="output">
+          <div class="bt-head"><span class="bt-icon">📤</span><span class="bt-name">Output</span></div>
+          <div class="bt-desc">Формат результата: текст, JSON, список</div>
+        </button>
+      </div>
+
+      <input class="field" id="blockValue" placeholder="Описание блока…" />
+      <div style="height:8px"></div>
+      <button class="btn-add" id="addBlockBtn">+ Добавить блок</button>
+    </div>
+
+    <!-- Block list -->
+    <div class="section">
+      <div class="section-label">Конфигурация (<span id="blockCount">0</span> блоков)</div>
+      <div id="blocks">
+        <div class="empty-state">
+          <div class="es-icon">🔧</div>
+          <p>Добавь блоки, чтобы описать<br>логику мини-приложения</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Agent prompt + run -->
+    <div class="section">
+      <div class="section-label">Запрос к AI-агенту</div>
+      <textarea class="field" id="prompt" placeholder="Опиши, что должен сделать агент. Например:&#10;— Сгенерируй сценарий бота по блокам&#10;— Напиши код мини-приложения&#10;— Составь пошаговую инструкцию"></textarea>
+      <div style="height:10px"></div>
+      <button class="btn-run" id="runBtn">
+        <span id="runIcon">▶</span>
+        <span id="runLabel">Запустить</span>
+      </button>
+    </div>
+
+    <!-- Result -->
+    <div class="section hidden" id="resultSection">
+      <div class="section-label">Результат</div>
+      <div class="result-box" id="out"></div>
+    </div>
+  </div>
+
+  <!-- ═══ TAB: Projects ══════════════════════════════════════════ -->
+  <div id="tab-projects" class="hidden">
+    <div class="section">
+      <div class="import-row">
+        <button class="btn-secondary" id="importBtn">📂 Импорт JSON</button>
+        <button class="btn-secondary" id="newProjectBtn">✨ Новый проект</button>
+      </div>
+      <input type="file" id="importFile" accept=".json,application/json" />
+      <div class="section-label">Сохранённые проекты</div>
+      <div id="projectsList">
+        <div class="empty-state">
+          <div class="es-icon">📁</div>
+          <p>Проектов пока нет.<br>Создай первый в конструкторе!</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  /* ── Telegram WebApp ──────────────────────────────────────────── */
+  const tg = window.Telegram?.WebApp;
+  if (tg) { tg.ready(); tg.expand(); }
+
+  /* ── State ────────────────────────────────────────────────────── */
+  const qs     = new URLSearchParams(location.search);
+  const userId = tg?.initDataUnsafe?.user?.id
+                 ? String(tg.initDataUnsafe.user.id)
+                 : qs.get('userId') || 'guest';
+
+  let projectId  = null;
+  let blocks     = [];
+  let activeType = 'input';
+
+  /* ── Helpers ──────────────────────────────────────────────────── */
+  function toast(msg, ms = 2200) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), ms);
+  }
+  function haptic(type = 'light') { tg?.HapticFeedback?.impactOccurred(type); }
+  function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  /* ── Tabs ─────────────────────────────────────────────────────── */
+  document.querySelectorAll('.tab').forEach(btn => {
+    btn.onclick = () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t === btn));
+      document.getElementById('tab-builder').classList.toggle('hidden',  btn.dataset.tab !== 'builder');
+      document.getElementById('tab-projects').classList.toggle('hidden', btn.dataset.tab !== 'projects');
+      if (btn.dataset.tab === 'projects') loadProjects();
+    };
+  });
+
+  /* ── Block type selector ──────────────────────────────────────── */
+  const PLACEHOLDERS = {
+    input:  'Например: тема, название бренда, вопрос пользователя…',
+    prompt: 'Например: сгенерируй ответ бота для саппорт-чата…',
+    rule:   'Например: отвечай на русском, до 100 слов, дружелюбно…',
+    output: 'Например: верни JSON {answer, confidence}…',
+  };
+
+  document.querySelectorAll('.bt').forEach(btn => {
+    btn.onclick = () => {
+      activeType = btn.dataset.type;
+      document.querySelectorAll('.bt').forEach(b => b.classList.toggle('active', b === btn));
+      document.getElementById('blockValue').placeholder = PLACEHOLDERS[activeType];
+      document.getElementById('blockValue').focus();
+    };
+  });
+  document.getElementById('blockValue').placeholder = PLACEHOLDERS.input;
+
+  /* ── Render blocks ────────────────────────────────────────────── */
+  const BADGE_CLS = { input: 'badge-input', prompt: 'badge-prompt', rule: 'badge-rule', output: 'badge-output' };
+
+  function renderBlocks() {
+    const el = document.getElementById('blocks');
+    document.getElementById('blockCount').textContent = blocks.length;
+
+    if (!blocks.length) {
+      el.innerHTML = '<div class="empty-state"><div class="es-icon">🔧</div><p>Добавь блоки, чтобы описать<br>логику мини-приложения</p></div>';
+      return;
+    }
+    el.innerHTML = blocks.map((b, i) => `
+      <div class="block-item">
+        <span class="badge ${BADGE_CLS[b.type]}">${b.type}</span>
+        <span class="block-val">${esc(b.value)}</span>
+        <button class="block-del" data-i="${i}">✕</button>
+      </div>`).join('');
+
+    el.querySelectorAll('.block-del').forEach(btn => {
+      btn.onclick = () => { haptic(); blocks.splice(+btn.dataset.i, 1); renderBlocks(); };
+    });
+  }
+
+  /* ── Add block ────────────────────────────────────────────────── */
+  document.getElementById('addBlockBtn').onclick = () => {
+    const inp = document.getElementById('blockValue');
+    const v = inp.value.trim();
+    if (!v) { inp.focus(); toast('Введи описание блока'); return; }
+    haptic();
+    blocks.push({ type: activeType, value: v });
+    inp.value = '';
+    inp.focus();
+    renderBlocks();
+  };
+  document.getElementById('blockValue').onkeydown = e => {
+    if (e.key === 'Enter') { e.preventDefault(); document.getElementById('addBlockBtn').click(); }
+  };
+
+  /* ── Save ──────────────────────────────────────────────────────── */
+  document.getElementById('saveBtn').onclick = async () => {
+    const name = document.getElementById('projectName').value.trim() || 'Без названия';
+    const btn  = document.getElementById('saveBtn');
+    btn.disabled = true;
+    try {
+      const r = await fetch('/api/projects', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: projectId, userId, name, blocks }),
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error);
+      projectId = d.id;
+      document.getElementById('headerSub').textContent = name;
+      btn.textContent = '✓'; btn.classList.add('ok');
+      haptic('medium'); toast('Сохранено');
+      setTimeout(() => { btn.textContent = 'Сохранить'; btn.classList.remove('ok'); }, 1800);
+    } catch (e) { toast('Ошибка: ' + e.message); }
+    finally { btn.disabled = false; }
+  };
+
+  /* ── Export JSON ───────────────────────────────────────────────── */
+  document.getElementById('exportBtn').onclick = () => {
+    const name = document.getElementById('projectName').value.trim() || 'project';
+    const data = { name, blocks, exportedAt: new Date().toISOString() };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = name.replace(/[^a-zA-Zа-яА-Я0-9_-]/g, '_') + '.json';
+    a.click();
+    URL.revokeObjectURL(a.href);
+    haptic(); toast('JSON экспортирован');
+  };
+
+  /* ── Import JSON ───────────────────────────────────────────────── */
+  document.getElementById('importBtn').onclick = () => document.getElementById('importFile').click();
+  document.getElementById('importFile').onchange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const data = JSON.parse(reader.result);
+        if (!data.blocks || !Array.isArray(data.blocks)) throw new Error('Неверный формат');
+        projectId = null;
+        blocks = data.blocks;
+        document.getElementById('projectName').value = data.name || '';
+        document.getElementById('headerSub').textContent = data.name || 'импорт';
+        renderBlocks();
+        document.querySelector('[data-tab="builder"]').click();
+        haptic('medium'); toast('Проект импортирован');
+      } catch (err) { toast('Ошибка: ' + err.message); }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
+
+  /* ── New project ───────────────────────────────────────────────── */
+  document.getElementById('newProjectBtn').onclick = () => {
+    projectId = null;
+    blocks = [];
+    document.getElementById('projectName').value = '';
+    document.getElementById('headerSub').textContent = 'новый проект';
+    document.getElementById('resultSection').classList.add('hidden');
+    document.getElementById('out').textContent = '';
+    document.getElementById('prompt').value = '';
+    renderBlocks();
+    document.querySelector('[data-tab="builder"]').click();
+    haptic(); toast('Новый проект');
+  };
+
+  /* ── Run agent ─────────────────────────────────────────────────── */
+  document.getElementById('runBtn').onclick = async () => {
+    const prompt = document.getElementById('prompt').value.trim();
+    if (!prompt) { document.getElementById('prompt').focus(); toast('Опиши задачу для агента'); return; }
+
+    const btn   = document.getElementById('runBtn');
+    const icon  = document.getElementById('runIcon');
+    const label = document.getElementById('runLabel');
+    btn.disabled = true;
+    icon.outerHTML = '<span class="spinner" id="runIcon"></span>';
+    label.textContent = 'Генерирую…';
+
+    try {
+      const r = await fetch('/api/agent/run', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt, blocks }),
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error);
+      document.getElementById('out').textContent = d.text;
+      document.getElementById('resultSection').classList.remove('hidden');
+      document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      haptic('medium');
+    } catch (e) { toast('Ошибка: ' + e.message); }
+    finally {
+      btn.disabled = false;
+      document.getElementById('runIcon').outerHTML = '<span id="runIcon">▶</span>';
+      label.textContent = 'Запустить';
+    }
+  };
+
+  /* ── Load projects list ────────────────────────────────────────── */
+  async function loadProjects() {
+    const el = document.getElementById('projectsList');
+    el.innerHTML = '<div style="text-align:center;padding:24px;color:var(--hint)">Загрузка…</div>';
+    try {
+      const r = await fetch(`/api/users/${encodeURIComponent(userId)}/projects`);
+      const list = await r.json();
+      if (!list.length) {
+        el.innerHTML = '<div class="empty-state"><div class="es-icon">📁</div><p>Проектов пока нет.<br>Создай первый в конструкторе!</p></div>';
+        return;
+      }
+      el.innerHTML = list.map(p => `
+        <div class="project-card" data-id="${p.id}">
+          <span class="pc-icon">⚡</span>
+          <div class="pc-info">
+            <div class="pc-name">${esc(p.name)}</div>
+            <div class="pc-meta">${p.blocks.length} блок${plr(p.blocks.length)} · ${fdate(p.updatedAt)}</div>
+          </div>
+          <span class="pc-arrow">›</span>
+        </div>`).join('');
+      el.querySelectorAll('.project-card').forEach(c => {
+        c.onclick = () => openProject(c.dataset.id);
+      });
+    } catch { el.innerHTML = '<div style="text-align:center;padding:24px;color:var(--danger)">Ошибка загрузки</div>'; }
+  }
+
+  async function openProject(id) {
+    try {
+      const r = await fetch(`/api/projects/${id}`);
+      const d = await r.json();
+      projectId = d.id; blocks = d.blocks || [];
+      document.getElementById('projectName').value = d.name || '';
+      document.getElementById('headerSub').textContent = d.name || '';
+      renderBlocks();
+      document.querySelector('[data-tab="builder"]').click();
+      haptic(); toast('Проект загружен');
+    } catch { toast('Ошибка загрузки'); }
+  }
+
+  /* ── Utils ─────────────────────────────────────────────────────── */
+  function plr(n) {
+    if (n % 10 === 1 && n % 100 !== 11) return '';
+    if ([2,3,4].includes(n % 10) && ![12,13,14].includes(n % 100)) return 'а';
+    return 'ов';
+  }
+  function fdate(iso) {
+    if (!iso) return '';
+    return new Date(iso).toLocaleDateString('ru', { day: 'numeric', month: 'short' });
+  }
+
+  /* ── Init ──────────────────────────────────────────────────────── */
+  renderBlocks();
+</script>
+</body>
+</html>
