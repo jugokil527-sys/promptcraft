@@ -78,9 +78,8 @@ export function registerHandlers(bot, baseUrl) {
         `• 🤖 Бота под любую нишу\n\n` +
         `Нажми кнопку — выбери шаблон:`,
         Markup.inlineKeyboard([
-          [Markup.button.callback('📋 Выбрать шаблон', 'action:templates')],
+          [Markup.button.callback('📋 Выбрать шаблон', 'action:templates'), Markup.button.callback('❓ FAQ', 'action:faq')],
           [Markup.button.webApp('🔧 Открыть конструктор', `${baseUrl}/?userId=${userId}`)],
-          [Markup.button.callback('❓ FAQ', 'action:faq')],
         ])
       );
       analyticsRepo.track(userId, 'onboarding_start');
