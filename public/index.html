@@ -452,6 +452,10 @@
         <button class="btn-deploy" id="deployBtn" style="flex:2">🚀 Создать бота</button>
         <button class="btn-deploy" id="fixBtn" style="flex:1;background:var(--hint)">🔧 Починить</button>
       </div>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button class="btn-secondary" id="exportPromptBtn" style="flex:1">📄 Экспорт промпта</button>
+        <button class="btn-secondary" id="exportFullBtn" style="flex:1">📦 Экспорт всего</button>
+      </div>
       <div id="deploySuccess" class="deploy-success hidden"></div>
     </div>
   </div>
@@ -1192,6 +1196,72 @@
       btn.disabled = false;
       btn.textContent = 'Создать →';
     }
+  };
+
+  /* ── Export ─────────────────────────────────────────────────────── */
+  function downloadFile(filename, content, mime = 'text/plain') {
+    const blob = new Blob([content], { type: mime });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  function safeFilename(name) {
+    return (name || 'bot').replace(/[^a-zA-Zа-яА-Я0-9_-]/g, '_').slice(0, 40);
+  }
+
+  // Экспорт промпта — готовый system prompt для вставки в любой AI
+  document.getElementById('exportPromptBtn').onclick = () => {
+    const name = document.getElementById('projectName').value.trim() || 'Бот';
+    const scenario = getScenario();
+    const blockLines = blocks.map(b => `[${b.type.toUpperCase()}] ${b.value}`).join('\n');
+
+    const content =
+`# Системный промпт: ${name}
+
+Ты — Telegram-бот. Веди диалог строго по следующему сценарию.
+Отвечай на языке пользователя. Будь дружелюбен и конкретен.
+
+## Конфигурация блоков
+${blockLines || '(блоки не заданы)'}
+
+## Сценарий
+${scenario || '(сценарий не сгенерирован)'}
+
+---
+Всегда следуй сценарию. Не выходи за рамки своей роли.`;
+
+    downloadFile(`${safeFilename(name)}_prompt.txt`, content);
+    haptic(); toast('Промпт экспортирован');
+  };
+
+  // Экспорт всего — JSON со всем проектом + промпт для AI
+  document.getElementById('exportFullBtn').onclick = () => {
+    const name = document.getElementById('projectName').value.trim() || 'Бот';
+    const scenario = getScenario();
+
+    const data = {
+      name,
+      exportedAt: new Date().toISOString(),
+      blocks,
+      scenario,
+      systemPrompt: `Ты — Telegram-бот "${name}". Веди диалог по сценарию:\n\n${scenario}`,
+      openai: {
+        model: 'gpt-4o',
+        messages: [
+          { role: 'system', content: `Ты — Telegram-бот "${name}". Следуй сценарию:\n\n${scenario}` },
+        ],
+      },
+      anthropic: {
+        model: 'claude-opus-4-6',
+        system: `Ты — Telegram-бот "${name}". Следуй сценарию:\n\n${scenario}`,
+      },
+    };
+
+    downloadFile(`${safeFilename(name)}_full.json`, JSON.stringify(data, null, 2), 'application/json');
+    haptic(); toast('Полный экспорт готов');
   };
 
   /* ── Fix bot ────────────────────────────────────────────────────── */
