@@ -159,7 +159,52 @@
       background: var(--sec-bg); border-radius: var(--radius);
       padding: 14px 16px; white-space: pre-wrap; word-break: break-word;
       font-size: 14px; line-height: 1.6; min-height: 60px;
+      outline: none; cursor: text;
+      border: 1.5px solid transparent; transition: border-color .15s;
     }
+    .result-box:focus { border-color: var(--btn); }
+    .btn-deploy {
+      width: 100%; padding: 14px;
+      background: #16a34a; color: #fff;
+      border: none; border-radius: var(--radius);
+      font-size: 16px; font-weight: 700; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: opacity .15s; margin-top: 10px;
+    }
+    .btn-deploy:active { opacity: .8; }
+    .btn-deploy:disabled { opacity: .45; cursor: default; }
+
+    /* ── Deploy modal ───────────────────────────── */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.5);
+      display: flex; align-items: flex-end; justify-content: center;
+      z-index: 100; padding: 16px;
+    }
+    .modal {
+      background: var(--bg); border-radius: var(--radius) var(--radius) 0 0;
+      padding: 24px 20px; width: 100%; max-width: 600px;
+    }
+    .modal h3 { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+    .modal p  { font-size: 13px; color: var(--hint); margin-bottom: 16px; line-height: 1.5; }
+    .modal-actions { display: flex; gap: 8px; margin-top: 12px; }
+    .btn-cancel {
+      flex: 1; padding: 12px; border: 1.5px solid rgba(128,128,128,.2);
+      background: var(--sec-bg); color: var(--text); border-radius: var(--radius-sm);
+      font-size: 14px; font-weight: 600; cursor: pointer;
+    }
+    .btn-confirm {
+      flex: 2; padding: 12px; background: #16a34a; color: #fff;
+      border: none; border-radius: var(--radius-sm);
+      font-size: 14px; font-weight: 700; cursor: pointer; transition: opacity .15s;
+    }
+    .btn-confirm:disabled { opacity: .5; cursor: default; }
+    .deploy-success {
+      background: #dcfce7; border-radius: var(--radius);
+      padding: 16px; margin-top: 10px; text-align: center;
+    }
+    .deploy-success .ds-icon { font-size: 32px; margin-bottom: 6px; }
+    .deploy-success .ds-name { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+    .deploy-success .ds-link { font-size: 14px; color: var(--btn); text-decoration: none; font-weight: 600; }
 
     /* ── Project list ──────────────────────────── */
     .project-card {
@@ -400,8 +445,24 @@
 
     <!-- Result -->
     <div class="section hidden" id="resultSection">
-      <div class="section-label">Результат</div>
-      <div class="result-box" id="out"></div>
+      <div class="section-label">Результат <span style="font-size:10px;color:var(--hint);font-weight:400;text-transform:none">(можно редактировать)</span></div>
+      <div class="result-box" id="out" contenteditable="true" spellcheck="false"></div>
+      <div style="height:10px"></div>
+      <button class="btn-deploy" id="deployBtn">🚀 Создать бота из сценария</button>
+      <div id="deploySuccess" class="deploy-success hidden"></div>
+    </div>
+  </div>
+
+  <!-- Deploy modal -->
+  <div class="modal-overlay hidden" id="deployModal">
+    <div class="modal">
+      <h3>🤖 Создать бота</h3>
+      <p>Вставь токен бота от @BotFather. Бот заработает сразу — будет отвечать по твоему сценарию через AI.</p>
+      <input class="field" id="botTokenInput" placeholder="1234567890:ABCdef..." autocomplete="off" />
+      <div class="modal-actions">
+        <button class="btn-cancel" id="deployCancel">Отмена</button>
+        <button class="btn-confirm" id="deployConfirm">Создать →</button>
+      </div>
     </div>
   </div>
 
@@ -1048,6 +1109,56 @@
     if (!iso) return '';
     return new Date(iso).toLocaleDateString('ru', { day: 'numeric', month: 'short' });
   }
+
+  /* ── Deploy bot ────────────────────────────────────────────────── */
+  document.getElementById('deployBtn').onclick = () => {
+    document.getElementById('deployModal').classList.remove('hidden');
+    document.getElementById('botTokenInput').focus();
+  };
+
+  document.getElementById('deployCancel').onclick = () => {
+    document.getElementById('deployModal').classList.add('hidden');
+    document.getElementById('botTokenInput').value = '';
+  };
+
+  document.getElementById('deployConfirm').onclick = async () => {
+    const token = document.getElementById('botTokenInput').value.trim();
+    if (!token) { toast('Введи токен бота'); return; }
+
+    const btn = document.getElementById('deployConfirm');
+    btn.disabled = true;
+    btn.textContent = 'Создаю…';
+
+    const scenario = document.getElementById('out').innerText || document.getElementById('out').textContent;
+
+    try {
+      const r = await fetch('/api/bots/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, scenario, userId }),
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error);
+
+      document.getElementById('deployModal').classList.add('hidden');
+      document.getElementById('botTokenInput').value = '';
+
+      document.getElementById('deploySuccess').innerHTML = `
+        <div class="ds-icon">🎉</div>
+        <div class="ds-name">@${esc(d.username)} готов!</div>
+        <div style="margin-top:6px">
+          <a class="ds-link" href="${esc(d.link)}" target="_blank">Открыть бота →</a>
+        </div>`;
+      document.getElementById('deploySuccess').classList.remove('hidden');
+      haptic('medium');
+      toast('Бот создан и готов к работе!', 3000);
+    } catch (e) {
+      toast('Ошибка: ' + e.message, 4000);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Создать →';
+    }
+  };
 
   /* ── Init ──────────────────────────────────────────────────────── */
   renderBlocks();

@@ -9,6 +9,7 @@ import { requestLogger } from './middleware/requestLogger.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import projectsRouter from './routes/projects.js';
 import agentRouter from './routes/agent.js';
+import botsRouter from './routes/bots.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = path.join(__dirname, '..', 'public');
@@ -26,6 +27,8 @@ export function createApp() {
   // API routes
   app.use('/api/projects', projectsRouter);
   app.use('/api/agent', agentRouter);
+  app.use('/api/bots', botsRouter);
+  app.use('/webhook', botsRouter);
 
   // Backward-compat alias kept from MVP: GET /api/users/:userId/projects
   app.get('/api/users/:userId/projects', async (req, res, next) => {
