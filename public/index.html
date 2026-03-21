@@ -380,7 +380,8 @@
 
   <!-- Tabs -->
   <div class="tabs">
-    <button class="tab active" data-tab="builder">Конструктор</button>
+    <button class="tab active" data-tab="builder">Билдер</button>
+    <button class="tab"        data-tab="idea">💡 Идея</button>
     <button class="tab"        data-tab="projects">Проекты</button>
     <button class="tab"        data-tab="guides">Гайды</button>
   </div>
@@ -486,6 +487,33 @@
     </div>
   </div>
 
+  <!-- ═══ TAB: Idea ═════════════════════════════════════════════ -->
+  <div id="tab-idea" class="hidden">
+    <div class="section">
+      <div class="section-label">Опиши свою идею</div>
+      <textarea class="field" id="ideaInput" rows="5"
+        placeholder="Например: хочу бота для записи клиентов в барбершоп, чтобы сам напоминал о визите и предлагал свободные слоты..."></textarea>
+      <div style="height:10px"></div>
+      <button class="btn-run" id="ideaRunBtn">
+        <span id="ideaRunIcon">✨</span>
+        <span id="ideaRunLabel">Получить план</span>
+      </button>
+    </div>
+
+    <div id="ideaResult" class="hidden">
+      <div class="section">
+        <div class="section-label">План от AI</div>
+        <div class="result-box" id="ideaOut" style="min-height:120px"></div>
+      </div>
+      <div class="section">
+        <div class="section-label">Готовые блоки</div>
+        <div id="ideaBlocks"></div>
+        <div style="height:10px"></div>
+        <button class="btn-run" id="ideaApplyBtn">⚡ Собрать в конструкторе</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ═══ TAB: Projects ══════════════════════════════════════════ -->
   <div id="tab-projects" class="hidden">
     <div class="section">
@@ -572,7 +600,7 @@
   function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
   /* ── Tabs ─────────────────────────────────────────────────────── */
-  const TAB_IDS = { builder: 'tab-builder', projects: 'tab-projects', guides: 'tab-guides' };
+  const TAB_IDS = { builder: 'tab-builder', idea: 'tab-idea', projects: 'tab-projects', guides: 'tab-guides' };
 
   document.querySelectorAll('.tab').forEach(btn => {
     btn.onclick = () => {
@@ -1191,6 +1219,95 @@
       btn.disabled = false;
       btn.textContent = 'Создать →';
     }
+  };
+
+  /* ── Idea advisor ───────────────────────────────────────────────── */
+  let ideaSuggestedBlocks = [];
+
+  document.getElementById('ideaRunBtn').onclick = async () => {
+    const idea = document.getElementById('ideaInput').value.trim();
+    if (!idea) { document.getElementById('ideaInput').focus(); toast('Опиши идею'); return; }
+
+    const btn   = document.getElementById('ideaRunBtn');
+    const icon  = document.getElementById('ideaRunIcon');
+    const label = document.getElementById('ideaRunLabel');
+    btn.disabled = true;
+    icon.outerHTML = '<span class="spinner" id="ideaRunIcon"></span>';
+    label.textContent = 'Думаю…';
+
+    const prompt =
+`Пользователь описал идею Telegram-бота: "${idea}"
+
+Ответь строго по этой структуре (на русском):
+
+## Что получится
+[1-2 предложения — суть бота]
+
+## Как лучше сделать
+[3-4 конкретных шага через наш конструктор]
+
+## Блоки
+Верни JSON-массив блоков (только JSON, без пояснений после него):
+[{"type":"input","value":"..."},{"type":"prompt","value":"..."},{"type":"rule","value":"..."},{"type":"output","value":"..."}]
+
+## Совет
+[1 практический совет по запуску]`;
+
+    try {
+      const r = await fetch('/api/agent/run', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt, blocks: [] }),
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error);
+
+      // Парсим блоки из ответа
+      const jsonMatch = d.text.match(/\[[\s\S]*?\]/);
+      ideaSuggestedBlocks = [];
+      if (jsonMatch) {
+        try {
+          ideaSuggestedBlocks = JSON.parse(jsonMatch[0]).filter(b => b.type && b.value);
+        } catch {}
+      }
+
+      // Показываем текст без JSON-блока
+      const cleanText = d.text.replace(/\[[\s\S]*?\]/, '').trim();
+      document.getElementById('ideaOut').textContent = cleanText;
+
+      // Рендерим превью блоков
+      const ideaBlocksEl = document.getElementById('ideaBlocks');
+      if (ideaSuggestedBlocks.length) {
+        ideaBlocksEl.innerHTML = ideaSuggestedBlocks.map(b => `
+          <div class="block-item">
+            <span class="badge ${BADGE_CLS[b.type] || ''}">${b.type}</span>
+            <span class="block-val">${esc(b.value)}</span>
+          </div>`).join('');
+      } else {
+        ideaBlocksEl.innerHTML = '<div style="color:var(--hint);font-size:13px">AI не вернул блоки — используй текст выше как основу.</div>';
+      }
+
+      document.getElementById('ideaResult').classList.remove('hidden');
+      document.getElementById('ideaResult').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      haptic('medium');
+    } catch (e) { toast('Ошибка: ' + e.message, 4000); }
+    finally {
+      btn.disabled = false;
+      document.getElementById('ideaRunIcon').outerHTML = '<span id="ideaRunIcon">✨</span>';
+      label.textContent = 'Получить план';
+    }
+  };
+
+  document.getElementById('ideaApplyBtn').onclick = () => {
+    if (!ideaSuggestedBlocks.length) { toast('Нет блоков для применения'); return; }
+    blocks = ideaSuggestedBlocks.map(b => ({ ...b }));
+    const idea = document.getElementById('ideaInput').value.trim().slice(0, 50);
+    document.getElementById('projectName').value = idea || 'Проект из идеи';
+    document.getElementById('headerSub').textContent = idea || 'Проект из идеи';
+    document.getElementById('resultSection').classList.add('hidden');
+    renderBlocks();
+    document.querySelector('[data-tab="builder"]').click();
+    haptic('medium');
+    toast('Блоки загружены — запусти агента!');
   };
 
   /* ── Export ─────────────────────────────────────────────────────── */
