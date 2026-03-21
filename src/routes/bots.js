@@ -66,15 +66,14 @@ router.delete('/:id', asyncWrap(async (req, res) => {
   res.json({ ok: true });
 }));
 
-/** Входящие обновления от Telegram для созданных ботов */
-router.post('/webhook/:secret', asyncWrap(async (req, res) => {
+export default router;
+
+/** Обработчик webhook — монтируется напрямую в app.js на /webhook/:secret */
+export async function handleWebhook(req, res) {
   const bot = botRepo.findBySecret(req.params.secret);
   if (!bot) return res.sendStatus(404);
-
-  res.sendStatus(200); // Ответить Telegram сразу
+  res.sendStatus(200);
   handleUpdate(bot, req.body).catch(err =>
     console.error(JSON.stringify({ ts: new Date().toISOString(), level: 'error', msg: 'bot runner error', err: err.message }))
   );
-}));
-
-export default router;
+}

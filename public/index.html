@@ -448,7 +448,10 @@
       <div class="section-label">Результат <span style="font-size:10px;color:var(--hint);font-weight:400;text-transform:none">(можно редактировать)</span></div>
       <div class="result-box" id="out" contenteditable="true" spellcheck="false"></div>
       <div style="height:10px"></div>
-      <button class="btn-deploy" id="deployBtn">🚀 Создать бота из сценария</button>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button class="btn-deploy" id="deployBtn" style="flex:2">🚀 Создать бота</button>
+        <button class="btn-deploy" id="fixBtn" style="flex:1;background:var(--hint)">🔧 Починить</button>
+      </div>
       <div id="deploySuccess" class="deploy-success hidden"></div>
     </div>
   </div>
@@ -457,11 +460,24 @@
   <div class="modal-overlay hidden" id="deployModal">
     <div class="modal">
       <h3>🤖 Создать бота</h3>
-      <p>Вставь токен бота от @BotFather. Бот заработает сразу — будет отвечать по твоему сценарию через AI.</p>
+      <p>Вставь токен от <a href="https://t.me/BotFather" target="_blank" style="color:var(--btn);font-weight:600">@BotFather</a>. Бот заработает сразу — будет отвечать по сценарию через AI.</p>
       <input class="field" id="botTokenInput" placeholder="1234567890:ABCdef..." autocomplete="off" />
       <div class="modal-actions">
         <button class="btn-cancel" id="deployCancel">Отмена</button>
         <button class="btn-confirm" id="deployConfirm">Создать →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fix bot modal -->
+  <div class="modal-overlay hidden" id="fixModal">
+    <div class="modal">
+      <h3>🔧 Починить бота</h3>
+      <p>Опиши что не так — AI исправит сценарий.</p>
+      <textarea class="field" id="fixInput" placeholder="Например: бот отвечает не по теме, не понимает вопросы о ценах..." rows="4"></textarea>
+      <div class="modal-actions">
+        <button class="btn-cancel" id="fixCancel">Отмена</button>
+        <button class="btn-confirm" id="fixConfirm">Починить →</button>
       </div>
     </div>
   </div>
@@ -930,6 +946,12 @@
     document.querySelector('[data-tab="builder"]').click();
     haptic('medium');
     toast('Шаблон загружен — настрой под себя');
+
+    // Автосохранение шаблона в проекты (задача 4)
+    fetch('/api/projects', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, name: tpl.title, blocks: tpl.blocks }),
+    }).then(r => r.json()).then(d => { if (d.id) projectId = d.id; }).catch(() => {});
   }
 
   /* ── Guides data ───────────────────────────────────────────────── */
@@ -1111,6 +1133,11 @@
   }
 
   /* ── Deploy bot ────────────────────────────────────────────────── */
+  function getScenario() {
+    const el = document.getElementById('out');
+    return el.innerText || el.textContent || '';
+  }
+
   document.getElementById('deployBtn').onclick = () => {
     document.getElementById('deployModal').classList.remove('hidden');
     document.getElementById('botTokenInput').focus();
@@ -1129,7 +1156,7 @@
     btn.disabled = true;
     btn.textContent = 'Создаю…';
 
-    const scenario = document.getElementById('out').innerText || document.getElementById('out').textContent;
+    const scenario = getScenario();
 
     try {
       const r = await fetch('/api/bots/create', {
@@ -1142,6 +1169,13 @@
 
       document.getElementById('deployModal').classList.add('hidden');
       document.getElementById('botTokenInput').value = '';
+
+      // Автосохранение проекта (задача 4)
+      const name = document.getElementById('projectName').value.trim() || 'Проект ' + d.username;
+      fetch('/api/projects', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, name, blocks }),
+      }).catch(() => {});
 
       document.getElementById('deploySuccess').innerHTML = `
         <div class="ds-icon">🎉</div>
@@ -1157,6 +1191,51 @@
     } finally {
       btn.disabled = false;
       btn.textContent = 'Создать →';
+    }
+  };
+
+  /* ── Fix bot ────────────────────────────────────────────────────── */
+  document.getElementById('fixBtn').onclick = () => {
+    document.getElementById('fixModal').classList.remove('hidden');
+    document.getElementById('fixInput').focus();
+  };
+
+  document.getElementById('fixCancel').onclick = () => {
+    document.getElementById('fixModal').classList.add('hidden');
+    document.getElementById('fixInput').value = '';
+  };
+
+  document.getElementById('fixConfirm').onclick = async () => {
+    const problem = document.getElementById('fixInput').value.trim();
+    if (!problem) { toast('Опиши проблему'); return; }
+
+    const btn = document.getElementById('fixConfirm');
+    btn.disabled = true;
+    btn.textContent = 'Чиню…';
+
+    const currentScenario = getScenario();
+    const fixPrompt = `Текущий сценарий бота:\n\n${currentScenario}\n\n---\nПроблема: ${problem}\n\nИсправь сценарий, чтобы устранить проблему. Верни полный обновлённый сценарий.`;
+
+    try {
+      const r = await fetch('/api/agent/run', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: fixPrompt, blocks }),
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error);
+
+      document.getElementById('out').textContent = d.text;
+      document.getElementById('resultSection').classList.remove('hidden');
+      document.getElementById('fixModal').classList.add('hidden');
+      document.getElementById('fixInput').value = '';
+      document.getElementById('deploySuccess').classList.add('hidden');
+      haptic('medium');
+      toast('Сценарий исправлен!', 3000);
+    } catch (e) {
+      toast('Ошибка: ' + e.message, 4000);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Починить →';
     }
   };
 
