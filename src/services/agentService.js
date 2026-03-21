@@ -42,50 +42,71 @@ export async function runAgent({ prompt, blocks = [] }) {
     ? `${context}\n---\nUser request: ${prompt}`
     : prompt;
 
+  if (process.env.OPENROUTER_API_KEY) {
+    return runOpenRouter({ userMessage });
+  }
+
   if (process.env.GEMINI_API_KEY) {
     return runGemini({ userMessage });
   }
 
   return {
     mode: 'mock',
-    text: `[MOCK — задай GEMINI_API_KEY для настоящего AI]\n\nЗапрос: ${prompt}\n${context || '(блоков нет)'}`,
+    text: `[MOCK — задай OPENROUTER_API_KEY для настоящего AI]\n\nЗапрос: ${prompt}\n${context || '(блоков нет)'}`,
   };
+}
+
+async function runOpenRouter({ userMessage }) {
+  const apiKey = process.env.OPENROUTER_API_KEY;
+  const model = process.env.OPENROUTER_MODEL || 'minimax/minimax-01';
+
+  const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+      'HTTP-Referer': 'https://promptcraft-production-2182.up.railway.app',
+    },
+    body: JSON.stringify({
+      model,
+      messages: [
+        { role: 'system', content: SYSTEM_PREAMBLE },
+        { role: 'user', content: userMessage },
+      ],
+      max_tokens: 2048,
+      temperature: 0.7,
+    }),
+  });
+
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`OpenRouter ${res.status}: ${err}`);
+  }
+
+  const data = await res.json();
+  const text = data.choices?.[0]?.message?.content || '';
+  return { mode: 'openrouter', model, text };
 }
 
 async function runGemini({ userMessage }) {
   const apiKey = process.env.GEMINI_API_KEY;
   const modelName = process.env.GEMINI_MODEL || MODELS[0];
 
-  const body = JSON.stringify({
-    system_instruction: { parts: [{ text: SYSTEM_PREAMBLE }] },
-    contents: [{ role: 'user', parts: [{ text: userMessage }] }],
-    generationConfig: { maxOutputTokens: 2048, temperature: 0.7 },
-  });
-
-  // Try v1 then v1beta
-  const bases = [
-    `https://generativelanguage.googleapis.com/v1/models/${modelName}:generateContent`,
-    `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent`,
-  ];
-
-  let lastErr;
-  for (const url of bases) {
-    try {
-      const res = await fetch(`${url}?key=${apiKey}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body,
-      });
-      if (!res.ok) {
-        const err = await res.text();
-        throw new Error(`${res.status}: ${err}`);
-      }
-      const data = await res.json();
-      const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-      return { mode: 'gemini', model: modelName, text };
-    } catch (err) {
-      lastErr = err;
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1/models/${modelName}:generateContent?key=${apiKey}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        system_instruction: { parts: [{ text: SYSTEM_PREAMBLE }] },
+        contents: [{ role: 'user', parts: [{ text: userMessage }] }],
+        generationConfig: { maxOutputTokens: 2048, temperature: 0.7 },
+      }),
     }
-  }
-  throw lastErr;
+  );
+
+  if (!res.ok) throw new Error(`Gemini ${res.status}: ${await res.text()}`);
+  const data = await res.json();
+  const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  return { mode: 'gemini', model: modelName, text };
 }
