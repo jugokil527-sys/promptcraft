@@ -11,8 +11,8 @@ import { registerHandlers } from './bot/handlers.js';
 import * as broadcastService from './services/broadcastService.js';
 
 const port = Number(process.env.PORT) || 3000;
-const baseUrl = process.env.PUBLIC_BASE_URL || `http://localhost:${port}`;
 const webhookUrl = process.env.WEBHOOK_URL || null;
+const baseUrl = webhookUrl || process.env.PUBLIC_BASE_URL || `http://localhost:${port}`;
 
 const log = (level, msg, extra = {}) =>
   console[level === 'error' ? 'error' : 'log'](JSON.stringify({
