@@ -951,11 +951,6 @@
     haptic('medium');
     toast('Шаблон загружен — настрой под себя');
 
-    // Автосохранение шаблона в проекты (задача 4)
-    fetch('/api/projects', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId, name: tpl.title, blocks: tpl.blocks }),
-    }).then(r => r.json()).then(d => { if (d.id) projectId = d.id; }).catch(() => {});
   }
 
   /* ── Guides data ───────────────────────────────────────────────── */
