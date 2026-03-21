@@ -49,13 +49,26 @@ export async function runAgent({ prompt, blocks = [] }) {
 
 async function runGemini({ userMessage }) {
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-  const model = genAI.getGenerativeModel({
-    model: process.env.GEMINI_MODEL || 'gemini-2.0-flash',
-    systemInstruction: SYSTEM_PREAMBLE,
-  });
 
-  const result = await model.generateContent(userMessage);
-  const text = result.response.text();
+  const MODELS = [
+    process.env.GEMINI_MODEL || 'gemini-2.0-flash',
+    'gemini-1.5-flash',
+    'gemini-1.5-pro',
+  ];
 
-  return { mode: 'gemini', text };
+  let lastErr;
+  for (const modelName of MODELS) {
+    try {
+      const model = genAI.getGenerativeModel({
+        model: modelName,
+        systemInstruction: SYSTEM_PREAMBLE,
+      });
+      const result = await model.generateContent(userMessage);
+      const text = result.response.text();
+      return { mode: 'gemini', model: modelName, text };
+    } catch (err) {
+      lastErr = err;
+    }
+  }
+  throw lastErr;
 }

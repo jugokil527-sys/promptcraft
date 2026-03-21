@@ -16,7 +16,7 @@ export class AppError extends Error {
 // eslint-disable-next-line no-unused-vars
 export function errorHandler(err, req, res, next) {
   const status = err.statusCode || 500;
-  const message = err.isOperational ? err.message : 'Internal server error';
+  const message = err.isOperational ? err.message : (err.message || 'Internal server error');
 
   // Always log the full error server-side
   console.error(JSON.stringify({
