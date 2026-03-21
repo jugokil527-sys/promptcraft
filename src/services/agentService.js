@@ -58,7 +58,7 @@ export async function runAgent({ prompt, blocks = [] }) {
 
 async function runOpenRouter({ userMessage }) {
   const apiKey = process.env.OPENROUTER_API_KEY;
-  const model = process.env.OPENROUTER_MODEL || 'minimax/minimax-01';
+  const model = (process.env.OPENROUTER_MODEL || 'minimax/minimax-m2.7').trim();
 
   const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
     method: 'POST',
