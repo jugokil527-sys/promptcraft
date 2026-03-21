@@ -121,6 +121,12 @@
       padding: 0 2px; transition: color .1s;
     }
     .block-del:active { color: var(--danger); }
+    .block-val { cursor: text; }
+    .block-edit-ta {
+      width: 100%; padding: 4px 6px; min-height: 40px;
+      font-size: 14px; line-height: 1.4; resize: none;
+      background: var(--bg); border-color: var(--btn);
+    }
     .empty-state { text-align: center; padding: 32px 16px; color: var(--hint); }
     .empty-state .es-icon { font-size: 40px; margin-bottom: 8px; }
     .empty-state p { font-size: 14px; line-height: 1.5; }
@@ -195,6 +201,118 @@
 
     /* hidden file input */
     #importFile { display: none; }
+
+    /* ── Guides ────────────────────────────────── */
+    .guide-card {
+      display: flex; align-items: center; gap: 14px;
+      background: var(--sec-bg); border-radius: var(--radius);
+      padding: 16px; margin-bottom: 10px; cursor: pointer;
+      transition: opacity .15s;
+    }
+    .guide-card:active { opacity: .7; }
+    .guide-card-icon {
+      width: 48px; height: 48px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px; flex-shrink: 0;
+    }
+    .guide-card-body { flex: 1; min-width: 0; }
+    .guide-card-title { font-size: 15px; font-weight: 700; margin-bottom: 3px; }
+    .guide-card-desc  { font-size: 12px; color: var(--hint); line-height: 1.4; }
+    .guide-card-arrow { color: var(--hint); font-size: 20px; }
+
+    /* Guide detail */
+    .guide-detail { padding: 0 16px; }
+    .guide-back {
+      display: flex; align-items: center; gap: 6px;
+      background: none; border: none; color: var(--btn);
+      font-size: 15px; font-weight: 600; cursor: pointer;
+      padding: 4px 0 16px; transition: opacity .15s;
+    }
+    .guide-back:active { opacity: .6; }
+    .guide-detail-header {
+      display: flex; align-items: center; gap: 14px;
+      margin-bottom: 20px;
+    }
+    .guide-detail-icon {
+      width: 56px; height: 56px; border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px; flex-shrink: 0;
+    }
+    .guide-detail-title { font-size: 20px; font-weight: 800; }
+    .guide-detail-subtitle { font-size: 13px; color: var(--hint); margin-top: 3px; }
+
+    .guide-step {
+      display: flex; gap: 12px;
+      background: var(--sec-bg); border-radius: var(--radius);
+      padding: 14px 16px; margin-bottom: 10px;
+    }
+    .guide-step-num {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: var(--btn); color: var(--btn-text);
+      font-size: 12px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 1px;
+    }
+    .guide-step-body { flex: 1; }
+    .guide-step-title { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+    .guide-step-text  { font-size: 13px; color: var(--hint); line-height: 1.5; }
+
+    .guide-tip {
+      background: color-mix(in srgb, var(--btn) 8%, var(--bg));
+      border-left: 3px solid var(--btn);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      padding: 12px 14px; margin-bottom: 10px;
+      font-size: 13px; line-height: 1.5; color: var(--text);
+    }
+    .guide-tip strong { color: var(--btn); }
+
+    .guide-section-label {
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .05em; color: var(--hint);
+      margin: 20px 0 10px;
+    }
+
+    /* ── Sub-tabs (inside Projects) ────────────── */
+    .sub-tabs {
+      display: flex; gap: 4px;
+      background: var(--sec-bg); border-radius: var(--radius-sm);
+      padding: 3px; margin-bottom: 16px;
+    }
+    .sub-tab {
+      flex: 1; padding: 8px 4px; border: none; border-radius: calc(var(--radius-sm) - 2px);
+      font-size: 13px; font-weight: 600; cursor: pointer;
+      background: transparent; color: var(--hint); transition: all .15s;
+    }
+    .sub-tab.active { background: var(--bg); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+
+    /* ── Template project cards ─────────────────── */
+    .tpl-card {
+      background: var(--sec-bg); border-radius: var(--radius);
+      padding: 16px; margin-bottom: 10px; cursor: default;
+    }
+    .tpl-card-head { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+    .tpl-card-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; flex-shrink: 0;
+    }
+    .tpl-card-title { font-size: 15px; font-weight: 700; }
+    .tpl-card-tag {
+      display: inline-block; padding: 2px 8px; border-radius: 6px;
+      font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
+      background: color-mix(in srgb, var(--btn) 12%, var(--bg)); color: var(--btn);
+      margin-top: 3px;
+    }
+    .tpl-card-desc { font-size: 13px; color: var(--hint); line-height: 1.4; margin-bottom: 8px; }
+    .tpl-card-meta { font-size: 11px; color: var(--hint); margin-bottom: 12px; }
+    .btn-use-tpl {
+      width: 100%; padding: 10px;
+      background: var(--btn); color: var(--btn-text);
+      border: none; border-radius: var(--radius-sm);
+      font-size: 13px; font-weight: 700; cursor: pointer;
+      transition: opacity .15s;
+    }
+    .btn-use-tpl:active { opacity: .8; }
   </style>
 </head>
 <body>
@@ -219,6 +337,7 @@
   <div class="tabs">
     <button class="tab active" data-tab="builder">Конструктор</button>
     <button class="tab"        data-tab="projects">Проекты</button>
+    <button class="tab"        data-tab="guides">Гайды</button>
   </div>
 
   <!-- ═══ TAB: Builder ═══════════════════════════════════════════ -->
@@ -289,19 +408,57 @@
   <!-- ═══ TAB: Projects ══════════════════════════════════════════ -->
   <div id="tab-projects" class="hidden">
     <div class="section">
-      <div class="import-row">
-        <button class="btn-secondary" id="importBtn">📂 Импорт JSON</button>
-        <button class="btn-secondary" id="newProjectBtn">✨ Новый проект</button>
+
+      <!-- Sub-tabs -->
+      <div class="sub-tabs">
+        <button class="sub-tab active" data-sub="my">Мои проекты</button>
+        <button class="sub-tab" data-sub="templates">Шаблоны</button>
       </div>
-      <input type="file" id="importFile" accept=".json,application/json" />
-      <div class="section-label">Сохранённые проекты</div>
-      <div id="projectsList">
-        <div class="empty-state">
-          <div class="es-icon">📁</div>
-          <p>Проектов пока нет.<br>Создай первый в конструкторе!</p>
+
+      <!-- My projects -->
+      <div id="sub-my">
+        <div class="import-row">
+          <button class="btn-secondary" id="importBtn">📂 Импорт JSON</button>
+          <button class="btn-secondary" id="newProjectBtn">✨ Новый проект</button>
+        </div>
+        <input type="file" id="importFile" accept=".json,application/json" />
+        <div class="section-label">Сохранённые проекты</div>
+        <div id="projectsList">
+          <div class="empty-state">
+            <div class="es-icon">📁</div>
+            <p>Проектов пока нет.<br>Создай первый в конструкторе!</p>
+          </div>
         </div>
       </div>
+
+      <!-- Template projects -->
+      <div id="sub-templates" class="hidden">
+        <div class="section-label">Готовые шаблоны — настрой под себя</div>
+        <div id="tplCards"></div>
+      </div>
+
     </div>
+  </div>
+
+  <!-- ═══ TAB: Guides ════════════════════════════════════════════ -->
+  <div id="tab-guides" class="hidden">
+
+    <!-- Guide list -->
+    <div id="guides-list">
+      <div class="section">
+        <div class="section-label">Обучение</div>
+        <div id="guideCards"></div>
+      </div>
+    </div>
+
+    <!-- Guide detail -->
+    <div id="guides-detail" class="hidden">
+      <div class="guide-detail">
+        <button class="guide-back" id="guideBackBtn">‹ Назад</button>
+        <div id="guideDetailContent"></div>
+      </div>
+    </div>
+
   </div>
 
 </div>
@@ -334,12 +491,16 @@
   function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
   /* ── Tabs ─────────────────────────────────────────────────────── */
+  const TAB_IDS = { builder: 'tab-builder', projects: 'tab-projects', guides: 'tab-guides' };
+
   document.querySelectorAll('.tab').forEach(btn => {
     btn.onclick = () => {
       document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t === btn));
-      document.getElementById('tab-builder').classList.toggle('hidden',  btn.dataset.tab !== 'builder');
-      document.getElementById('tab-projects').classList.toggle('hidden', btn.dataset.tab !== 'projects');
+      Object.entries(TAB_IDS).forEach(([key, id]) => {
+        document.getElementById(id).classList.toggle('hidden', btn.dataset.tab !== key);
+      });
       if (btn.dataset.tab === 'projects') loadProjects();
+      if (btn.dataset.tab === 'guides') renderGuideList();
     };
   });
 
@@ -375,13 +536,44 @@
     el.innerHTML = blocks.map((b, i) => `
       <div class="block-item">
         <span class="badge ${BADGE_CLS[b.type]}">${b.type}</span>
-        <span class="block-val">${esc(b.value)}</span>
+        <span class="block-val" data-i="${i}" title="Нажми чтобы редактировать">${esc(b.value)}</span>
         <button class="block-del" data-i="${i}">✕</button>
       </div>`).join('');
 
     el.querySelectorAll('.block-del').forEach(btn => {
       btn.onclick = () => { haptic(); blocks.splice(+btn.dataset.i, 1); renderBlocks(); };
     });
+
+    el.querySelectorAll('.block-val').forEach(span => {
+      span.onclick = () => startEditBlock(span);
+    });
+  }
+
+  function startEditBlock(span) {
+    if (span.querySelector('textarea')) return; // уже редактируется
+    const i = +span.dataset.i;
+    const val = blocks[i].value;
+    haptic('light');
+
+    const ta = document.createElement('textarea');
+    ta.className = 'field block-edit-ta';
+    ta.value = val;
+    ta.rows = Math.max(2, Math.ceil(val.length / 40));
+    span.innerHTML = '';
+    span.appendChild(ta);
+    ta.focus();
+    ta.setSelectionRange(ta.value.length, ta.value.length);
+
+    function save() {
+      const v = ta.value.trim();
+      if (v && v !== blocks[i].value) { blocks[i].value = v; haptic('light'); }
+      renderBlocks();
+    }
+    ta.onblur = save;
+    ta.onkeydown = e => {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); ta.blur(); }
+      if (e.key === 'Escape') { ta.value = blocks[i].value; ta.blur(); }
+    };
   }
 
   /* ── Add block ────────────────────────────────────────────────── */
@@ -539,6 +731,312 @@
       haptic(); toast('Проект загружен');
     } catch { toast('Ошибка загрузки'); }
   }
+
+  /* ── Project templates data ────────────────────────────────────── */
+  const PROJECT_TEMPLATES = [
+    {
+      id: 'tpl-shop',
+      icon: '🛒', iconBg: '#dbeafe',
+      title: 'Интернет-магазин',
+      tag: 'Продажи',
+      desc: 'Бот-витрина с каталогом товаров и приёмом заявок на покупку.',
+      meta: '4 блока · Готов к запуску',
+      blocks: [
+        { type: 'input',  value: 'Название товара или категория, которую ищет покупатель' },
+        { type: 'prompt', value: 'Покажи товары из каталога по запросу пользователя. Для каждого укажи: название, цену, краткое описание и как заказать.' },
+        { type: 'rule',   value: 'Отвечай на русском, дружелюбно. Если товара нет — предложи похожий. Не обещай то, чего нет в каталоге.' },
+        { type: 'output', value: 'Список подходящих товаров с ценами и кнопкой «Заказать»' },
+      ],
+    },
+    {
+      id: 'tpl-leads',
+      icon: '📋', iconBg: '#dcfce7',
+      title: 'Сбор заявок',
+      tag: 'Лидогенерация',
+      desc: 'Бот собирает контакты и квалифицирует лиды по твоим критериям.',
+      meta: '4 блока · Готов к запуску',
+      blocks: [
+        { type: 'input',  value: 'Имя, контакт (телефон/email), описание задачи или запроса пользователя' },
+        { type: 'prompt', value: 'Веди дружелюбный диалог для сбора заявки. Уточни детали задачи, бюджет и сроки. Подтверди, что заявка принята.' },
+        { type: 'rule',   value: 'Не давить. Если человек не хочет оставлять контакт — предложи альтернативу. Отвечай на русском.' },
+        { type: 'output', value: 'Подтверждение заявки и следующий шаг: когда перезвонят / напишут' },
+      ],
+    },
+    {
+      id: 'tpl-faq',
+      icon: '🤖', iconBg: '#f3e8ff',
+      title: 'Поддержка / FAQ',
+      tag: 'Поддержка',
+      desc: 'Автоматически отвечает на типовые вопросы и снижает нагрузку на команду.',
+      meta: '4 блока · Готов к запуску',
+      blocks: [
+        { type: 'input',  value: 'Вопрос пользователя о продукте, услуге или процессе' },
+        { type: 'prompt', value: 'Дай точный ответ на вопрос, опираясь только на информацию о продукте. Если ответа нет — вежливо перенаправь к специалисту.' },
+        { type: 'rule',   value: 'Отвечай кратко — до 3 предложений. Если не знаешь ответа — не придумывай. Тон: дружелюбный и профессиональный.' },
+        { type: 'output', value: 'Чёткий ответ на вопрос или переадресация к живому сотруднику' },
+      ],
+    },
+    {
+      id: 'tpl-promo',
+      icon: '🎁', iconBg: '#fef3c7',
+      title: 'Промокоды и скидки',
+      tag: 'Маркетинг',
+      desc: 'Бот выдаёт промокоды, объясняет условия акции и отвечает на вопросы.',
+      meta: '4 блока · Готов к запуску',
+      blocks: [
+        { type: 'input',  value: 'Запрос на получение промокода или вопрос об условиях акции' },
+        { type: 'prompt', value: 'Объясни условия акции, выдай промокод и расскажи как им воспользоваться. Если акция закончилась — предложи что-то взамен.' },
+        { type: 'rule',   value: 'Один промокод — одному пользователю. Не раскрывай внутренние системные данные. Отвечай на русском.' },
+        { type: 'output', value: 'Промокод + инструкция применения + срок действия' },
+      ],
+    },
+    {
+      id: 'tpl-booking',
+      icon: '📅', iconBg: '#fce7f3',
+      title: 'Запись на услугу',
+      tag: 'Бронирование',
+      desc: 'Бот записывает клиентов, уточняет детали и подтверждает время.',
+      meta: '4 блока · Готов к запуску',
+      blocks: [
+        { type: 'input',  value: 'Услуга, желаемая дата и время, имя клиента' },
+        { type: 'prompt', value: 'Запиши клиента на услугу. Уточни удобное время, подтверди запись, напомни что взять с собой или как подготовиться.' },
+        { type: 'rule',   value: 'Предлагай только реально доступное время. Записывай точную дату и имя. Подтверждай каждую запись явно.' },
+        { type: 'output', value: 'Подтверждение записи: услуга, дата, время, адрес или ссылка' },
+      ],
+    },
+    {
+      id: 'tpl-content',
+      icon: '📢', iconBg: '#ecfdf5',
+      title: 'Контент и подписка',
+      tag: 'Медиа',
+      desc: 'Бот рассказывает о контенте, принимает подписку и отправляет обновления.',
+      meta: '4 блока · Готов к запуску',
+      blocks: [
+        { type: 'input',  value: 'Интерес пользователя или тема, на которую он хочет получать контент' },
+        { type: 'prompt', value: 'Подбери релевантный контент по теме пользователя. Предложи подписаться на обновления, объясни что получит подписчик.' },
+        { type: 'rule',   value: 'Не спамить. Только полезный контент по теме. Давать реальную ценность в первом же сообщении.' },
+        { type: 'output', value: 'Рекомендованный контент + предложение подписки с описанием выгод' },
+      ],
+    },
+  ];
+
+  /* ── Sub-tabs inside Projects ──────────────────────────────────── */
+  document.querySelectorAll('.sub-tab').forEach(btn => {
+    btn.onclick = () => {
+      document.querySelectorAll('.sub-tab').forEach(t => t.classList.toggle('active', t === btn));
+      document.getElementById('sub-my').classList.toggle('hidden', btn.dataset.sub !== 'my');
+      document.getElementById('sub-templates').classList.toggle('hidden', btn.dataset.sub !== 'templates');
+      if (btn.dataset.sub === 'templates') renderProjectTemplates();
+    };
+  });
+
+  /* ── Render project templates ──────────────────────────────────── */
+  function renderProjectTemplates() {
+    const el = document.getElementById('tplCards');
+    if (el.dataset.rendered) return;
+    el.dataset.rendered = '1';
+    el.innerHTML = PROJECT_TEMPLATES.map(t => `
+      <div class="tpl-card">
+        <div class="tpl-card-head">
+          <div class="tpl-card-icon" style="background:${t.iconBg}">${t.icon}</div>
+          <div>
+            <div class="tpl-card-title">${esc(t.title)}</div>
+            <div class="tpl-card-tag">${esc(t.tag)}</div>
+          </div>
+        </div>
+        <div class="tpl-card-desc">${esc(t.desc)}</div>
+        <div class="tpl-card-meta">📦 ${esc(t.meta)}</div>
+        <button class="btn-use-tpl" data-tpl="${t.id}">Использовать шаблон →</button>
+      </div>`).join('');
+
+    el.querySelectorAll('.btn-use-tpl').forEach(btn => {
+      btn.onclick = () => useProjectTemplate(btn.dataset.tpl);
+    });
+  }
+
+  /* ── Load template into builder ────────────────────────────────── */
+  function useProjectTemplate(id) {
+    const tpl = PROJECT_TEMPLATES.find(t => t.id === id);
+    if (!tpl) return;
+    projectId = null;
+    blocks = tpl.blocks.map(b => ({ ...b }));
+    document.getElementById('projectName').value = tpl.title;
+    document.getElementById('headerSub').textContent = tpl.title;
+    document.getElementById('resultSection').classList.add('hidden');
+    document.getElementById('out').textContent = '';
+    document.getElementById('prompt').value = 'Опиши этот сценарий бота подробнее и предложи тексты для каждого шага диалога с пользователем.';
+    renderBlocks();
+    document.querySelector('[data-tab="builder"]').click();
+    haptic('medium');
+    toast('Шаблон загружен — настрой под себя');
+  }
+
+  /* ── Guides data ───────────────────────────────────────────────── */
+  const GUIDES = [
+    {
+      id: 'guide1',
+      icon: '🏢',
+      iconBg: '#dbeafe',
+      title: 'Mini Apps для бизнеса',
+      desc: 'Продажи, поддержка и рост через Telegram',
+      subtitle: 'Полный гайд по запуску и масштабированию',
+      steps: [
+        {
+          title: 'Зачем строить в Telegram',
+          text: 'Почти миллиард активных пользователей в месяц — это готовая аудитория, которая уже там. Пока конкуренты борются за внимание через email, ты обращаешься к клиентам там, где они и так проводят время. Поддержка 24/7, мгновенная связь, сбор заявок и продажи — всё без выхода из мессенджера.',
+        },
+        {
+          title: 'Фаза 1 — Формулировка (1–2 дня)',
+          text: 'Ответь на четыре вопроса перед стартом: Какую конкретную проблему решает Mini App? Кто твой пользователь и что ему нужно? Какое действие должен совершить пользователь в итоге? По каким цифрам поймёшь, что всё работает? Не пытайся автоматизировать всё сразу — одна чёткая задача лучше десяти размытых.',
+        },
+        {
+          title: 'Фаза 2 — Разработка (3–7 дней)',
+          text: 'Для старта без кода подойдёт PromptCraft — визуальный конструктор, который позволяет собрать полноценный Mini App без программирования. Спроектируй логику экранов на бумаге, определи все сценарии включая нестандартные, подключи нужные интеграции (CRM, оплата, email) и подготовь тексты.',
+        },
+        {
+          title: 'Фаза 3 — Запуск (3–5 дней)',
+          text: 'Не жди идеала. Запусти минимальную рабочую версию на 10–20 реальных пользователей. Перед запуском проверь: все сценарии пройдены вручную, оплата работает в тестовом режиме, уведомления приходят корректно, есть возможность выйти на живого сотрудника.',
+        },
+        {
+          title: 'Фаза 4 — Оптимизация (постоянно)',
+          text: 'После запуска работа только начинается. Каждую неделю смотри на цифры: где пользователи выходят из сценария, что спрашивают чаще всего, какие функции используют, а какие игнорируются. Это твоё техзадание на следующую итерацию.',
+        },
+        {
+          title: 'Реальные цифры',
+          text: 'Эффективность: сокращение нагрузки на поддержку до 40%, автоматизация рутинных операций. Рост: на 20–50% больше входящих лидов, лучше конверсия за счёт скорости ответа. Стоимость: стартовые вложения $500–5000, ROI 200–500%, срок окупаемости 1–3 месяца.',
+        },
+      ],
+      tip: '<strong>KPI для отслеживания:</strong> % диалогов с целевым действием, среднее время от первого сообщения до результата, количество повторных обращений, конверсия из обращения в покупку.',
+    },
+    {
+      id: 'guide2',
+      icon: '🚀',
+      iconBg: '#dcfce7',
+      title: 'Mini App в одиночку',
+      desc: 'От идеи до запуска за несколько часов',
+      subtitle: 'Гайд для самостоятельных создателей',
+      steps: [
+        {
+          title: 'Почему большинство не запускают',
+          text: 'Идея есть. Энтузиазм есть. А дальше: "нужно разобраться с кодом", "нужен сервер", "надо изучить API"... Технический порог кажется непреодолимым. Хорошая новость: можно пройти путь от идеи до рабочего Mini App за несколько часов. Без программирования, без найма разработчика, без недель обучения.',
+        },
+        {
+          title: 'Шаг 1 — Определи конкретное (15 мин)',
+          text: 'Прежде чем открывать любой конструктор, ответь: Какую проблему решает твой Mini App? Кому конкретно это нужно? Какое главное действие совершает пользователь? По каким цифрам поймёшь, что всё работает? Пример хорошего ответа: "Помочь фрилансерам быстро собирать заявки от клиентов через Telegram — без лишней переписки и потери контактов." Конкретность на этом этапе экономит часы работы дальше.',
+        },
+        {
+          title: 'Шаг 2 — Создай сценарий (30 мин)',
+          text: 'Нарисуй на бумаге основной сценарий: Пользователь открывает Mini App → Видит главный экран → Выбирает нужное действие → Получает результат. Потом добавь дополнительные сценарии: что если нажал не туда, что если хочет вернуться назад, что если нужна помощь. В PromptCraft всё это строится визуально — просто перетаскиваешь блоки.',
+        },
+        {
+          title: 'Шаг 3 — Добавь функции (1–2 часа)',
+          text: 'Стандартный набор для первого запуска: главный экран с приветствием и навигацией, кнопки с основными действиями, автоответы на типовые запросы, форма для сбора контактов или заявок, базовые AI-ответы для нестандартных вопросов. Не пытайся добавить всё сразу — минимальная рабочая версия лучше перегруженной незаконченной.',
+        },
+        {
+          title: 'Шаг 4 — Тест и запуск (30 мин)',
+          text: 'Пройди каждый сценарий самостоятельно. Позови 3–5 знакомых протестировать. Исправь то, что мешает пользоваться. Запускай. Идеального момента не будет — запускай когда работает, улучшать будешь потом.',
+        },
+        {
+          title: 'Стратегия роста: первые 3 месяца',
+          text: 'Месяц 1–2: запусти с минимумом функций, покажи 5–10 знакомым, собери первые отзывы, исправь то, что мешает. Месяц 3: изучи аналитику, улучши слабые места, добавь то, что просят чаще всего, собери первые кейсы. Ориентир: 100 пользователей к концу первого месяца, 1000 — к третьему.',
+        },
+      ],
+      tip: '<strong>Что тебе НЕ нужно для старта:</strong> опыт программирования, команда разработчиков, большой бюджет, недели свободного времени. Нужно: конкретная идея, 2–4 свободных часа, аккаунт в PromptCraft и желание довести до конца.',
+    },
+    {
+      id: 'guide3',
+      icon: '🛠️',
+      iconBg: '#fef3c7',
+      title: 'Mini App своими руками',
+      desc: 'Без кода — от нуля до запуска за 30–40 минут',
+      subtitle: 'Пошаговый гайд с чеклистом',
+      steps: [
+        {
+          title: 'Что ты получаешь, делая это сам',
+          text: 'Создать собственный Mini App в Telegram можно без единой строки кода. Не нужно быть разработчиком, разбираться в серверах или учиться неделями. Достаточно идеи и 30–40 свободных минут. Полный контроль — свои правила, свой продукт. Запуск за 30–40 минут, а не за недели.',
+        },
+        {
+          title: 'Шаг 1 — Зарегистрировать бота (5 мин)',
+          text: 'Открой Telegram и найди @BotFather в поиске. Нажми «Начать», отправь команду /newbot. Придумай название — например, «Мой первый Mini App». Придумай юзернейм — должен заканчиваться на «bot». Получи токен API — длинная строка символов. Сохрани токен: он понадобится на следующем шаге. Токен API — это ключ от своего бота. Никому его не показывай.',
+        },
+        {
+          title: 'Шаг 2 — Собрать Mini App в PromptCraft (15–20 мин)',
+          text: 'Зарегистрируйся в PromptCraft (карта не нужна). Создай новый проект: нажми «Создать Mini App», дай ему название, выбери подходящий шаблон. Настрой логику и экраны: главный экран (что видит пользователь первым), кнопки с основными действиями, команды /start и /help, ответы (что происходит после каждого действия). Вставь токен API в настройках проекта — и Mini App привязан к Telegram.',
+        },
+        {
+          title: 'Шаг 3 — Протестировать (5 мин)',
+          text: 'Найди своего бота в Telegram по юзернейму. Нажми «Начать». Пройди по всем кнопкам и сценариям. Отправь разные сообщения, проверь ответы. Убедись что всё работает как задумано. Лучше найти проблему самому, чем узнать о ней от пользователей.',
+        },
+        {
+          title: 'Шаг 4 — Запустить и поделиться (2 мин)',
+          text: 'Твоя ссылка выглядит так: https://t.me/ИМЯ_ТВОЕГО_БОТА. Поделись с друзьями и знакомыми, в социальных сетях, на своём сайте, в тематических группах и сообществах. После запуска: следи за активностью, собирай обратную связь, улучшай на основе того, что говорят пользователи.',
+        },
+        {
+          title: 'Три уровня Mini App',
+          text: 'Минимальный (запуск за 20 мин): приветственное сообщение, меню с 3–5 кнопками, команда /help, контактная информация. Хороший (1–2 часа): всё из минимального + автоответы, сбор контактов, рассылки, базовая аналитика. Отличный (за день): всё из хорошего + AI-функции, приём платежей, интеграции с внешними сервисами.',
+        },
+      ],
+      tip: '<strong>Чеклист перед запуском:</strong> ✓ Бот зарегистрирован через BotFather ✓ Токен сохранён в надёжном месте ✓ Проект создан в PromptCraft ✓ Логика и экраны настроены ✓ Токен подключён к проекту ✓ Всё протестировано в Telegram ✓ Ссылка готова к распространению',
+    },
+  ];
+
+  /* ── Render guide list ─────────────────────────────────────────── */
+  function renderGuideList() {
+    const el = document.getElementById('guideCards');
+    el.innerHTML = GUIDES.map(g => `
+      <div class="guide-card" data-guide="${g.id}">
+        <div class="guide-card-icon" style="background:${g.iconBg}">${g.icon}</div>
+        <div class="guide-card-body">
+          <div class="guide-card-title">${esc(g.title)}</div>
+          <div class="guide-card-desc">${esc(g.desc)}</div>
+        </div>
+        <span class="guide-card-arrow">›</span>
+      </div>`).join('');
+
+    el.querySelectorAll('.guide-card').forEach(card => {
+      card.onclick = () => openGuide(card.dataset.guide);
+    });
+  }
+
+  /* ── Open guide detail ─────────────────────────────────────────── */
+  function openGuide(id) {
+    const g = GUIDES.find(x => x.id === id);
+    if (!g) return;
+    haptic();
+
+    document.getElementById('guideDetailContent').innerHTML = `
+      <div class="guide-detail-header">
+        <div class="guide-detail-icon" style="background:${g.iconBg}">${g.icon}</div>
+        <div>
+          <div class="guide-detail-title">${esc(g.title)}</div>
+          <div class="guide-detail-subtitle">${esc(g.subtitle)}</div>
+        </div>
+      </div>
+
+      <div class="guide-section-label">Шаги</div>
+      ${g.steps.map((s, i) => `
+        <div class="guide-step">
+          <div class="guide-step-num">${i + 1}</div>
+          <div class="guide-step-body">
+            <div class="guide-step-title">${esc(s.title)}</div>
+            <div class="guide-step-text">${esc(s.text)}</div>
+          </div>
+        </div>`).join('')}
+
+      ${g.tip ? `<div class="guide-tip">${g.tip}</div>` : ''}
+    `;
+
+    document.getElementById('guides-list').classList.add('hidden');
+    document.getElementById('guides-detail').classList.remove('hidden');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  /* ── Back button ───────────────────────────────────────────────── */
+  document.getElementById('guideBackBtn').onclick = () => {
+    haptic();
+    document.getElementById('guides-detail').classList.add('hidden');
+    document.getElementById('guides-list').classList.remove('hidden');
+  };
 
   /* ── Utils ─────────────────────────────────────────────────────── */
   function plr(n) {
