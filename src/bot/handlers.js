@@ -85,8 +85,9 @@ export function registerHandlers(bot, baseUrl) {
       analyticsRepo.track(userId, 'onboarding_start');
     } else {
       // Повторный визит — короткое приветствие
+      await ctx.reply(`С возвращением, ${ctx.from.first_name}! 👋 Рад снова тебя видеть.`);
       await ctx.replyWithMarkdown(
-        `С возвращением, ${ctx.from.first_name}! 👋`,
+        `Продолжим?`,
         Markup.inlineKeyboard([
           [Markup.button.callback('📋 Шаблоны', 'action:templates'), Markup.button.callback('📊 Статистика', 'action:stats')],
           [Markup.button.webApp('🔧 Конструктор', `${baseUrl}/?userId=${userId}`)],
