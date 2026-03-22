@@ -30,13 +30,13 @@ if (!process.env.TELEGRAM_BOT_TOKEN) {
 
   // Устанавливаем команды в меню Telegram (BotFather-like experience)
   bot.telegram.setMyCommands([
-    { command: 'start',     description: 'Главная — онбординг и меню' },
-    { command: 'menu',      description: 'Главное меню' },
-    { command: 'templates', description: '📋 Конструктор шаблонов' },
-    { command: 'app',       description: '🔧 Открыть web-конструктор' },
-    { command: 'course',    description: '📚 Мини-курс' },
-    { command: 'faq',       description: '❓ Частые вопросы' },
-    { command: 'cancel',    description: '✖️ Отменить текущее действие' },
+    { command: 'start',     description: 'Home — onboarding and menu' },
+    { command: 'menu',      description: 'Main menu' },
+    { command: 'templates', description: '📋 Template builder' },
+    { command: 'app',       description: '🔧 Open web builder' },
+    { command: 'course',    description: '📚 Mini-course' },
+    { command: 'faq',       description: '❓ Frequently asked questions' },
+    { command: 'cancel',    description: '✖️ Cancel current action' },
   ]).catch((err) => log('warn', 'setMyCommands failed', { err: err.message }));
 
   // Регистрируем все обработчики
