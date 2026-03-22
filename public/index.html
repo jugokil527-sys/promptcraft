@@ -652,7 +652,7 @@
     document.getElementById('blockCount').textContent = blocks.length;
 
     if (!blocks.length) {
-      el.innerHTML = '<div class="empty-state"><div class="es-icon">🔧</div><p>Добавь блоки, чтобы описать<br>логику мини-приложения</p></div>';
+      el.innerHTML = '<div class="empty-state"><div class="es-icon">🔧</div><p>Add blocks to describe<br>your mini-app logic</p></div>';
       return;
     }
     el.innerHTML = blocks.map((b, i) => `
