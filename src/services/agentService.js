@@ -16,7 +16,7 @@ Each block has a type and value:
 
 Your job: take these blocks and the user's request, then generate a working result —
 this could be a bot scenario, an app config, generated content, code, or any artefact
-the user is building. Be concise, practical, output in the language the user writes in.`;
+the user is building. Be concise, practical, and always reply in English.`;
 
 const MODELS = [
   'gemini-2.0-flash',

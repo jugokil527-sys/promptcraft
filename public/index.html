@@ -1251,22 +1251,22 @@
     label.textContent = 'Thinking…';
 
     const prompt =
-`Пользователь описал идею Telegram-бота: "${idea}"
+`The user described a Telegram bot idea: "${idea}"
 
-Ответь строго по этой структуре (на русском):
+Reply strictly in this structure (in English):
 
-## Что получится
-[1-2 предложения — суть бота]
+## What you'll get
+[1-2 sentences — the essence of the bot]
 
-## Как лучше сделать
-[3-4 конкретных шага через наш конструктор]
+## How to build it
+[3-4 concrete steps using our builder]
 
-## Блоки
-Верни JSON-массив блоков (только JSON, без пояснений после него):
+## Blocks
+Return a JSON array of blocks (JSON only, no explanation after it):
 [{"type":"input","value":"..."},{"type":"prompt","value":"..."},{"type":"rule","value":"..."},{"type":"output","value":"..."}]
 
-## Совет
-[1 практический совет по запуску]`;
+## Tip
+[1 practical launch tip]`;
 
     try {
       const r = await fetch('/api/agent/run', {
