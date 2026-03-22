@@ -2,9 +2,7 @@
  * Deploy service — деплоит сгенерированного бота на VPS через SSH.
  * Стек на сервере: Node.js + PM2
  */
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
-const { Client } = require('ssh2');
+import { Client } from 'ssh2';
 
 const OPENROUTER_KEY = process.env.OPENROUTER_API_KEY || '';
 const OPENROUTER_MODEL = (process.env.OPENROUTER_MODEL || 'deepseek/deepseek-chat').trim();
