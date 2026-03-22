@@ -458,6 +458,18 @@
         <button class="btn-secondary" id="exportFullBtn" style="flex:1">📦 Экспорт всего</button>
       </div>
       <div id="deploySuccess" class="deploy-success hidden"></div>
+
+      <!-- Server deploy block -->
+      <div id="serverDeployBlock" class="hidden" style="margin-top:12px;padding:14px;background:var(--sec-bg);border-radius:var(--radius)">
+        <div class="section-label" style="margin-bottom:10px">🖥 Задеплоить на сервер</div>
+        <div style="font-size:13px;color:var(--hint);margin-bottom:10px">
+          Нет сервера? <a href="https://xorek.cloud/?from=42254" target="_blank" style="color:var(--link)">Купи на xorek.cloud →</a> от 99₽/мес. После покупки введи данные:
+        </div>
+        <input class="field" id="serverIp" placeholder="IP сервера (185.123.45.67)" style="margin-bottom:8px" />
+        <input class="field" id="serverPass" type="password" placeholder="Пароль root" style="margin-bottom:10px" />
+        <button class="btn-deploy" id="serverDeployBtn">🚀 Задеплоить</button>
+        <div id="serverDeployLog" class="hidden" style="margin-top:10px;font-size:12px;font-family:monospace;background:#111;color:#00ff88;padding:10px;border-radius:8px;max-height:180px;overflow-y:auto;white-space:pre-wrap"></div>
+      </div>
     </div>
   </div>
 
@@ -586,6 +598,7 @@
                  : qs.get('userId') || 'guest';
 
   let projectId  = null;
+  let lastDeployedBot = null;
   let blocks     = [];
   let activeType = 'input';
 
@@ -1211,6 +1224,8 @@
           <a class="ds-link" href="${esc(d.link)}" target="_blank">Открыть бота →</a>
         </div>`;
       document.getElementById('deploySuccess').classList.remove('hidden');
+      document.getElementById('serverDeployBlock').classList.remove('hidden');
+      lastDeployedBot = d;
       haptic('medium');
       toast('Бот создан и готов к работе!', 3000);
     } catch (e) {
@@ -1374,6 +1389,45 @@ ${scenario || '(сценарий не сгенерирован)'}
 
     downloadFile(`${safeFilename(name)}_full.json`, JSON.stringify(data, null, 2), 'application/json');
     haptic(); toast('Полный экспорт готов');
+  };
+
+  /* ── Server deploy ──────────────────────────────────────────────── */
+  document.getElementById('serverDeployBtn').onclick = async () => {
+    const host = document.getElementById('serverIp').value.trim();
+    const password = document.getElementById('serverPass').value;
+    const logEl = document.getElementById('serverDeployLog');
+
+    if (!host || !password) { toast('Введи IP и пароль'); return; }
+    if (!lastDeployedBot) { toast('Сначала создай бота'); return; }
+
+    const btn = document.getElementById('serverDeployBtn');
+    btn.disabled = true; btn.textContent = '⏳ Деплой...';
+    logEl.textContent = '';
+    logEl.classList.remove('hidden');
+    haptic('medium');
+
+    try {
+      const r = await fetch('/api/deploy', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          host,
+          password,
+          botId: lastDeployedBot.id,
+          botToken: lastDeployedBot.token,
+          scenario: document.getElementById('out').innerText,
+        }),
+      });
+      const d = await r.json();
+      if (d.logs) logEl.textContent = d.logs.join('\n');
+      if (!r.ok) throw new Error(d.error || 'Ошибка деплоя');
+      haptic('heavy');
+      toast('Бот задеплоен на сервер! 🚀', 4000);
+      btn.textContent = '✅ Задеплоен';
+    } catch (e) {
+      logEl.textContent += '\n❌ ' + e.message;
+      toast('Ошибка: ' + e.message, 5000);
+      btn.disabled = false; btn.textContent = '🚀 Задеплоить';
+    }
   };
 
   /* ── Fix bot ────────────────────────────────────────────────────── */
