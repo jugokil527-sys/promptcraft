@@ -369,21 +369,21 @@
       <span class="header-logo">⚡</span>
       <div>
         <h1 id="headerTitle">AI App Builder</h1>
-        <div class="header-sub" id="headerSub">новый проект</div>
+        <div class="header-sub" id="headerSub">new project</div>
       </div>
     </div>
     <div class="header-actions">
-      <button class="btn-icon" id="exportBtn" title="Экспорт JSON">📎</button>
-      <button class="btn-save"  id="saveBtn">Сохранить</button>
+      <button class="btn-icon" id="exportBtn" title="Export JSON">📎</button>
+      <button class="btn-save"  id="saveBtn">Save</button>
     </div>
   </div>
 
   <!-- Tabs -->
   <div class="tabs">
-    <button class="tab active" data-tab="builder">Билдер</button>
-    <button class="tab"        data-tab="idea">💡 Идея</button>
-    <button class="tab"        data-tab="projects">Проекты</button>
-    <button class="tab"        data-tab="guides">Гайды</button>
+    <button class="tab active" data-tab="builder">Builder</button>
+    <button class="tab"        data-tab="idea">💡 Idea</button>
+    <button class="tab"        data-tab="projects">Projects</button>
+    <button class="tab"        data-tab="guides">Guides</button>
   </div>
 
   <!-- ═══ TAB: Builder ═══════════════════════════════════════════ -->
@@ -391,83 +391,83 @@
 
     <!-- Project name -->
     <div class="section">
-      <div class="section-label">Название проекта</div>
-      <input class="field" id="projectName" placeholder="Например: Бот-помощник для саппорта" />
+      <div class="section-label">Project name</div>
+      <input class="field" id="projectName" placeholder="E.g.: Support assistant bot" />
     </div>
 
     <!-- Block type picker -->
     <div class="section">
-      <div class="section-label">Добавить блок</div>
+      <div class="section-label">Add block</div>
       <div class="block-types">
         <button class="bt active" data-type="input">
           <div class="bt-head"><span class="bt-icon">📥</span><span class="bt-name">Input</span></div>
-          <div class="bt-desc">Данные от пользователя: имя, тема, запрос</div>
+          <div class="bt-desc">User data: name, topic, request</div>
         </button>
         <button class="bt" data-type="prompt">
           <div class="bt-head"><span class="bt-icon">🧠</span><span class="bt-name">Prompt</span></div>
-          <div class="bt-desc">Инструкция AI: что делать с данными</div>
+          <div class="bt-desc">AI instruction: what to do with data</div>
         </button>
         <button class="bt" data-type="rule">
           <div class="bt-head"><span class="bt-icon">📏</span><span class="bt-name">Rule</span></div>
-          <div class="bt-desc">Ограничение: тон, длина, формат, язык</div>
+          <div class="bt-desc">Constraint: tone, length, format, language</div>
         </button>
         <button class="bt" data-type="output">
           <div class="bt-head"><span class="bt-icon">📤</span><span class="bt-name">Output</span></div>
-          <div class="bt-desc">Формат результата: текст, JSON, список</div>
+          <div class="bt-desc">Result format: text, JSON, list</div>
         </button>
       </div>
 
-      <input class="field" id="blockValue" placeholder="Описание блока…" />
+      <input class="field" id="blockValue" placeholder="Block description…" />
       <div style="height:8px"></div>
-      <button class="btn-add" id="addBlockBtn">+ Добавить блок</button>
+      <button class="btn-add" id="addBlockBtn">+ Add block</button>
     </div>
 
     <!-- Block list -->
     <div class="section">
-      <div class="section-label">Конфигурация (<span id="blockCount">0</span> блоков)</div>
+      <div class="section-label">Configuration (<span id="blockCount">0</span> blocks)</div>
       <div id="blocks">
         <div class="empty-state">
           <div class="es-icon">🔧</div>
-          <p>Добавь блоки, чтобы описать<br>логику мини-приложения</p>
+          <p>Add blocks to describe<br>your mini-app logic</p>
         </div>
       </div>
     </div>
 
     <!-- Agent prompt + run -->
     <div class="section">
-      <div class="section-label">Запрос к AI-агенту</div>
-      <textarea class="field" id="prompt" placeholder="Опиши, что должен сделать агент. Например:&#10;— Сгенерируй сценарий бота по блокам&#10;— Напиши код мини-приложения&#10;— Составь пошаговую инструкцию"></textarea>
+      <div class="section-label">AI Agent Request</div>
+      <textarea class="field" id="prompt" placeholder="Describe what the agent should do. For example:&#10;— Generate a bot scenario from the blocks&#10;— Write mini-app code&#10;— Create a step-by-step guide"></textarea>
       <div style="height:10px"></div>
       <button class="btn-run" id="runBtn">
         <span id="runIcon">▶</span>
-        <span id="runLabel">Запустить</span>
+        <span id="runLabel">Run</span>
       </button>
     </div>
 
     <!-- Result -->
     <div class="section hidden" id="resultSection">
-      <div class="section-label">Результат <span style="font-size:10px;color:var(--hint);font-weight:400;text-transform:none">(можно редактировать)</span></div>
+      <div class="section-label">Result <span style="font-size:10px;color:var(--hint);font-weight:400;text-transform:none">(editable)</span></div>
       <div class="result-box" id="out" contenteditable="true" spellcheck="false"></div>
       <div style="height:10px"></div>
       <div style="display:flex;gap:8px;margin-top:10px">
-        <button class="btn-deploy" id="deployBtn" style="flex:2">🚀 Создать бота</button>
-        <button class="btn-deploy" id="fixBtn" style="flex:1;background:var(--hint)">🔧 Починить</button>
+        <button class="btn-deploy" id="deployBtn" style="flex:2">🚀 Create Bot</button>
+        <button class="btn-deploy" id="fixBtn" style="flex:1;background:var(--hint)">🔧 Fix</button>
       </div>
       <div style="display:flex;gap:8px;margin-top:8px">
-        <button class="btn-secondary" id="exportPromptBtn" style="flex:1">📄 Экспорт промпта</button>
-        <button class="btn-secondary" id="exportFullBtn" style="flex:1">📦 Экспорт всего</button>
+        <button class="btn-secondary" id="exportPromptBtn" style="flex:1">📄 Export Prompt</button>
+        <button class="btn-secondary" id="exportFullBtn" style="flex:1">📦 Export All</button>
       </div>
       <div id="deploySuccess" class="deploy-success hidden"></div>
 
       <!-- Server deploy block -->
       <div id="serverDeployBlock" class="hidden" style="margin-top:12px;padding:14px;background:var(--sec-bg);border-radius:var(--radius)">
-        <div class="section-label" style="margin-bottom:10px">🖥 Задеплоить на сервер</div>
+        <div class="section-label" style="margin-bottom:10px">🖥 Deploy to Server</div>
         <div style="font-size:13px;color:var(--hint);margin-bottom:10px">
-          Нет сервера? <a href="https://xorek.cloud/?from=42254" target="_blank" style="color:var(--link)">Купи на xorek.cloud →</a> от 99₽/мес. После покупки введи данные:
+          No server? <a href="https://xorek.cloud/?from=42254" target="_blank" style="color:var(--link)">Get one at xorek.cloud →</a> from $1/mo. Enter your server details below:
         </div>
-        <input class="field" id="serverIp" placeholder="IP сервера (185.123.45.67)" style="margin-bottom:8px" />
-        <input class="field" id="serverPass" type="password" placeholder="Пароль root" style="margin-bottom:10px" />
-        <button class="btn-deploy" id="serverDeployBtn">🚀 Задеплоить</button>
+        <input class="field" id="serverIp" placeholder="Server IP (185.123.45.67)" style="margin-bottom:8px" />
+        <input class="field" id="serverPass" type="password" placeholder="Root password" style="margin-bottom:10px" />
+        <button class="btn-deploy" id="serverDeployBtn">🚀 Deploy</button>
         <div id="serverDeployLog" class="hidden" style="margin-top:10px;font-size:12px;font-family:monospace;background:#111;color:#00ff88;padding:10px;border-radius:8px;max-height:180px;overflow-y:auto;white-space:pre-wrap"></div>
       </div>
     </div>
@@ -476,12 +476,12 @@
   <!-- Deploy modal -->
   <div class="modal-overlay hidden" id="deployModal">
     <div class="modal">
-      <h3>🤖 Создать бота</h3>
-      <p>Вставь токен от <a href="https://t.me/BotFather" target="_blank" style="color:var(--btn);font-weight:600">@BotFather</a>. Бот заработает сразу — будет отвечать по сценарию через AI.</p>
+      <h3>🤖 Create Bot</h3>
+      <p>Paste your token from <a href="https://t.me/BotFather" target="_blank" style="color:var(--btn);font-weight:600">@BotFather</a>. Your bot will go live instantly — powered by AI and your scenario.</p>
       <input class="field" id="botTokenInput" placeholder="1234567890:ABCdef..." autocomplete="off" />
       <div class="modal-actions">
-        <button class="btn-cancel" id="deployCancel">Отмена</button>
-        <button class="btn-confirm" id="deployConfirm">Создать →</button>
+        <button class="btn-cancel" id="deployCancel">Cancel</button>
+        <button class="btn-confirm" id="deployConfirm">Create →</button>
       </div>
     </div>
   </div>
@@ -489,12 +489,12 @@
   <!-- Fix bot modal -->
   <div class="modal-overlay hidden" id="fixModal">
     <div class="modal">
-      <h3>🔧 Починить бота</h3>
-      <p>Опиши что не так — AI исправит сценарий.</p>
-      <textarea class="field" id="fixInput" placeholder="Например: бот отвечает не по теме, не понимает вопросы о ценах..." rows="4"></textarea>
+      <h3>🔧 Fix Bot</h3>
+      <p>Describe the issue — AI will fix the scenario.</p>
+      <textarea class="field" id="fixInput" placeholder="E.g.: bot goes off-topic, doesn't understand pricing questions..." rows="4"></textarea>
       <div class="modal-actions">
-        <button class="btn-cancel" id="fixCancel">Отмена</button>
-        <button class="btn-confirm" id="fixConfirm">Починить →</button>
+        <button class="btn-cancel" id="fixCancel">Cancel</button>
+        <button class="btn-confirm" id="fixConfirm">Fix →</button>
       </div>
     </div>
   </div>
@@ -502,26 +502,26 @@
   <!-- ═══ TAB: Idea ═════════════════════════════════════════════ -->
   <div id="tab-idea" class="hidden">
     <div class="section">
-      <div class="section-label">Опиши свою идею</div>
+      <div class="section-label">Describe your idea</div>
       <textarea class="field" id="ideaInput" rows="5"
-        placeholder="Например: хочу бота для записи клиентов в барбершоп, чтобы сам напоминал о визите и предлагал свободные слоты..."></textarea>
+        placeholder="E.g.: I want a bot for booking clients at a barbershop, that reminds them of appointments and offers available slots..."></textarea>
       <div style="height:10px"></div>
       <button class="btn-run" id="ideaRunBtn">
         <span id="ideaRunIcon">✨</span>
-        <span id="ideaRunLabel">Получить план</span>
+        <span id="ideaRunLabel">Get Plan</span>
       </button>
     </div>
 
     <div id="ideaResult" class="hidden">
       <div class="section">
-        <div class="section-label">План от AI</div>
+        <div class="section-label">AI Plan</div>
         <div class="result-box" id="ideaOut" style="min-height:120px"></div>
       </div>
       <div class="section">
-        <div class="section-label">Готовые блоки</div>
+        <div class="section-label">Ready Blocks</div>
         <div id="ideaBlocks"></div>
         <div style="height:10px"></div>
-        <button class="btn-run" id="ideaApplyBtn">⚡ Собрать в конструкторе</button>
+        <button class="btn-run" id="ideaApplyBtn">⚡ Open in Builder</button>
       </div>
     </div>
   </div>
@@ -532,29 +532,29 @@
 
       <!-- Sub-tabs -->
       <div class="sub-tabs">
-        <button class="sub-tab active" data-sub="my">Мои проекты</button>
-        <button class="sub-tab" data-sub="templates">Шаблоны</button>
+        <button class="sub-tab active" data-sub="my">My Projects</button>
+        <button class="sub-tab" data-sub="templates">Templates</button>
       </div>
 
       <!-- My projects -->
       <div id="sub-my">
         <div class="import-row">
-          <button class="btn-secondary" id="importBtn">📂 Импорт JSON</button>
-          <button class="btn-secondary" id="newProjectBtn">✨ Новый проект</button>
+          <button class="btn-secondary" id="importBtn">📂 Import JSON</button>
+          <button class="btn-secondary" id="newProjectBtn">✨ New Project</button>
         </div>
         <input type="file" id="importFile" accept=".json,application/json" />
-        <div class="section-label">Сохранённые проекты</div>
+        <div class="section-label">Saved Projects</div>
         <div id="projectsList">
           <div class="empty-state">
             <div class="es-icon">📁</div>
-            <p>Проектов пока нет.<br>Создай первый в конструкторе!</p>
+            <p>No projects yet.<br>Create your first one in the builder!</p>
           </div>
         </div>
       </div>
 
       <!-- Template projects -->
       <div id="sub-templates" class="hidden">
-        <div class="section-label">Готовые шаблоны — настрой под себя</div>
+        <div class="section-label">Ready templates — customize for your needs</div>
         <div id="tplCards"></div>
       </div>
 
@@ -567,7 +567,7 @@
     <!-- Guide list -->
     <div id="guides-list">
       <div class="section">
-        <div class="section-label">Обучение</div>
+        <div class="section-label">Learning</div>
         <div id="guideCards"></div>
       </div>
     </div>
@@ -575,7 +575,7 @@
     <!-- Guide detail -->
     <div id="guides-detail" class="hidden">
       <div class="guide-detail">
-        <button class="guide-back" id="guideBackBtn">‹ Назад</button>
+        <button class="guide-back" id="guideBackBtn">‹ Back</button>
         <div id="guideDetailContent"></div>
       </div>
     </div>

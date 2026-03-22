@@ -1,17 +1,5 @@
 /**
- * Все обработчики Telegram-бота.
- * Подключается к экземпляру bot из index.js.
- *
- * Команды:
- *   /start      — онбординг + регистрация пользователя
- *   /menu       — главное меню
- *   /templates  — выбор шаблона
- *   /app        — открыть конструктор WebApp
- *   /course     — мини-курс
- *   /faq        — частые вопросы
- *   /stats      — аналитика (только admin)
- *   /broadcast  — создать рассылку (только admin)
- *   /cancel     — отменить текущий диалог
+ * All Telegram bot handlers.
  */
 import { Markup } from 'telegraf';
 import * as userRepo from '../repositories/userRepository.js';
@@ -31,7 +19,6 @@ function isAdmin(userId) {
   return ADMIN_IDS.includes(String(userId));
 }
 
-/** Регистрация/обновление пользователя */
 function touchUser(from) {
   const now = new Date().toISOString();
   const existing = userRepo.findById(from.id);
@@ -50,11 +37,11 @@ function touchUser(from) {
 
 export function registerHandlers(bot, baseUrl) {
 
-  // ── Rate limiting middleware ──────────────────────────────────────────────
+  // ── Rate limiting ─────────────────────────────────────────────────────────
   bot.use(async (ctx, next) => {
     const userId = ctx.from?.id;
     if (userId && !botRateLimiter(String(userId))) {
-      return ctx.reply('⚠️ Слишком много запросов. Подождите минуту.');
+      return ctx.reply('⚠️ Too many requests. Please wait a minute.');
     }
     return next();
   });
@@ -67,30 +54,28 @@ export function registerHandlers(bot, baseUrl) {
     clearState(userId);
 
     if (!existing?.onboarded) {
-      // Первый визит — онбординг
       userRepo.upsert({ id: userId, onboarded: true });
-      await ctx.reply(`👋 Привет, ${ctx.from.first_name}! Рад видеть тебя здесь.`);
+      await ctx.reply(`👋 Hey, ${ctx.from.first_name}! Great to have you here.`);
       await ctx.replyWithMarkdown(
-        `*PromptCraft* — конструктор Telegram-ботов с AI.\n\n` +
-        `За 3 шага создай:\n` +
-        `• 💳 Бота для приёма оплат\n` +
-        `• 🎁 Бота для выдачи кодов/ключей\n` +
-        `• 🤖 Бота под любую нишу\n\n` +
-        `Нажми кнопку — выбери шаблон:`,
+        `*PromptCraft* — AI-powered Telegram bot builder.\n\n` +
+        `Build in 3 steps:\n` +
+        `• 💳 Payment bot\n` +
+        `• 🎁 Key/code delivery bot\n` +
+        `• 🤖 Bot for any niche\n\n` +
+        `Choose a template to get started:`,
         Markup.inlineKeyboard([
-          [Markup.button.callback('📋 Выбрать шаблон', 'action:templates'), Markup.button.callback('❓ FAQ', 'action:faq')],
-          [Markup.button.webApp('🔧 Открыть конструктор', `${baseUrl}/?userId=${userId}`)],
+          [Markup.button.callback('📋 Templates', 'action:templates'), Markup.button.callback('❓ FAQ', 'action:faq')],
+          [Markup.button.webApp('🔧 Open Builder', `${baseUrl}/?userId=${userId}`)],
         ])
       );
       analyticsRepo.track(userId, 'onboarding_start');
     } else {
-      // Повторный визит — короткое приветствие
-      await ctx.reply(`С возвращением, ${ctx.from.first_name}! 👋 Рад снова тебя видеть.`);
+      await ctx.reply(`Welcome back, ${ctx.from.first_name}! 👋 Good to see you again.`);
       await ctx.replyWithMarkdown(
-        `Продолжим?`,
+        `Ready to continue?`,
         Markup.inlineKeyboard([
-          [Markup.button.callback('📋 Шаблоны', 'action:templates'), Markup.button.callback('📊 Статистика', 'action:stats')],
-          [Markup.button.webApp('🔧 Конструктор', `${baseUrl}/?userId=${userId}`)],
+          [Markup.button.callback('📋 Templates', 'action:templates'), Markup.button.callback('📊 Stats', 'action:stats')],
+          [Markup.button.webApp('🔧 Builder', `${baseUrl}/?userId=${userId}`)],
         ])
       );
     }
@@ -104,15 +89,15 @@ export function registerHandlers(bot, baseUrl) {
     clearState(userId);
 
     const adminButtons = isAdmin(userId)
-      ? [[Markup.button.callback('📢 Рассылка', 'action:broadcast'), Markup.button.callback('📊 Аналитика', 'action:stats')]]
+      ? [[Markup.button.callback('📢 Broadcast', 'action:broadcast'), Markup.button.callback('📊 Analytics', 'action:stats')]]
       : [];
 
     await ctx.replyWithMarkdown(
-      '📋 *Главное меню*',
+      '📋 *Main Menu*',
       Markup.inlineKeyboard([
-        [Markup.button.callback('📋 Шаблоны', 'action:templates')],
-        [Markup.button.webApp('🔧 Конструктор', `${baseUrl}/?userId=${userId}`)],
-        [Markup.button.callback('❓ FAQ', 'action:faq'), Markup.button.callback('📚 Курс', 'action:course')],
+        [Markup.button.callback('📋 Templates', 'action:templates')],
+        [Markup.button.webApp('🔧 Builder', `${baseUrl}/?userId=${userId}`)],
+        [Markup.button.callback('❓ FAQ', 'action:faq'), Markup.button.callback('📚 Course', 'action:course')],
         ...adminButtons,
       ])
     );
@@ -130,8 +115,8 @@ export function registerHandlers(bot, baseUrl) {
     const userId = String(ctx.from.id);
     analyticsRepo.track(userId, 'button_click', { button: 'app' });
     await ctx.reply(
-      '🔧 Открыть конструктор:',
-      Markup.inlineKeyboard([[Markup.button.webApp('Открыть', `${baseUrl}/?userId=${userId}`)]])
+      '🔧 Open the builder:',
+      Markup.inlineKeyboard([[Markup.button.webApp('Open', `${baseUrl}/?userId=${userId}`)]])
     );
   });
 
@@ -140,52 +125,52 @@ export function registerHandlers(bot, baseUrl) {
     touchUser(ctx.from);
     analyticsRepo.track(String(ctx.from.id), 'button_click', { button: 'course' });
     await ctx.reply(
-      '📚 Мини-курс по созданию Telegram-ботов:',
-      Markup.inlineKeyboard([[Markup.button.url('Открыть курс', `${baseUrl}/course.html`)]])
+      '📚 Mini-course on building Telegram bots:',
+      Markup.inlineKeyboard([[Markup.button.url('Open Course', `${baseUrl}/course.html`)]])
     );
   });
 
-  // ── /faq ─────────────────────────────────────────────────────────────────
+  // ── /faq ──────────────────────────────────────────────────────────────────
   bot.command('faq', async (ctx) => {
     touchUser(ctx.from);
     analyticsRepo.track(String(ctx.from.id), 'button_click', { button: 'faq' });
     await ctx.replyWithMarkdown(
-      '❓ *Частые вопросы*\n\n' +
-      'Напишите вопрос — я отвечу автоматически.\n\n' +
-      'Темы: цена, шаблоны, webhook, AI, рассылки, ошибки.'
+      '❓ *FAQ*\n\n' +
+      'Ask your question — I\'ll answer automatically.\n\n' +
+      'Topics: pricing, templates, webhook, AI, broadcasts, errors.'
     );
   });
 
-  // ── /cancel ────────────────────────────────────────────────────────────────
+  // ── /cancel ───────────────────────────────────────────────────────────────
   bot.command('cancel', async (ctx) => {
     const userId = String(ctx.from.id);
     clearState(userId);
-    await ctx.reply('❌ Действие отменено. Напишите /menu для возврата в меню.');
+    await ctx.reply('❌ Action cancelled. Type /menu to go back.');
   });
 
   // ── /stats (admin) ────────────────────────────────────────────────────────
   bot.command('stats', async (ctx) => {
     touchUser(ctx.from);
     const userId = String(ctx.from.id);
-    if (!isAdmin(userId)) return ctx.reply('⛔️ Нет доступа.');
+    if (!isAdmin(userId)) return ctx.reply('⛔️ Access denied.');
     await sendStats(ctx);
   });
 
-  // ── /broadcast (admin) ───────────────────────────────────────────────────
+  // ── /broadcast (admin) ────────────────────────────────────────────────────
   bot.command('broadcast', async (ctx) => {
     touchUser(ctx.from);
     const userId = String(ctx.from.id);
-    if (!isAdmin(userId)) return ctx.reply('⛔️ Нет доступа.');
+    if (!isAdmin(userId)) return ctx.reply('⛔️ Access denied.');
 
     setState(userId, 'broadcast:compose', {});
     await ctx.replyWithMarkdown(
-      '📢 *Создание рассылки*\n\n' +
-      'Введите текст рассылки (поддерживается Markdown).\n\n' +
-      '/cancel — отменить'
+      '📢 *Create Broadcast*\n\n' +
+      'Enter the broadcast message (Markdown supported).\n\n' +
+      '/cancel — cancel'
     );
   });
 
-  // ── Inline кнопки (callback_query) ───────────────────────────────────────
+  // ── Inline buttons ────────────────────────────────────────────────────────
   bot.action('action:templates', async (ctx) => {
     await ctx.answerCbQuery();
     touchUser(ctx.from);
@@ -196,30 +181,29 @@ export function registerHandlers(bot, baseUrl) {
   bot.action('action:faq', async (ctx) => {
     await ctx.answerCbQuery();
     analyticsRepo.track(String(ctx.from.id), 'button_click', { button: 'faq' });
-    await ctx.replyWithMarkdown('❓ Напишите ваш вопрос — я отвечу автоматически.\n\nТемы: цена, шаблоны, webhook, AI, рассылки, ошибки.');
+    await ctx.replyWithMarkdown('❓ Ask your question — I\'ll answer automatically.\n\nTopics: pricing, templates, webhook, AI, broadcasts, errors.');
   });
 
   bot.action('action:stats', async (ctx) => {
     await ctx.answerCbQuery();
-    if (!isAdmin(String(ctx.from.id))) return ctx.reply('⛔️ Нет доступа.');
+    if (!isAdmin(String(ctx.from.id))) return ctx.reply('⛔️ Access denied.');
     sendStats(ctx);
   });
 
   bot.action('action:course', async (ctx) => {
     await ctx.answerCbQuery();
     analyticsRepo.track(String(ctx.from.id), 'button_click', { button: 'course' });
-    await ctx.reply('📚 Курс:', Markup.inlineKeyboard([[Markup.button.url('Открыть', `${baseUrl}/course.html`)]]))
+    await ctx.reply('📚 Course:', Markup.inlineKeyboard([[Markup.button.url('Open', `${baseUrl}/course.html`)]]))
   });
 
   bot.action('action:broadcast', async (ctx) => {
     await ctx.answerCbQuery();
     const userId = String(ctx.from.id);
-    if (!isAdmin(userId)) return ctx.reply('⛔️ Нет доступа.');
+    if (!isAdmin(userId)) return ctx.reply('⛔️ Access denied.');
     setState(userId, 'broadcast:compose', {});
-    await ctx.replyWithMarkdown('📢 Введите текст рассылки:');
+    await ctx.replyWithMarkdown('📢 Enter the broadcast message:');
   });
 
-  // Выбор шаблона через кнопку
   bot.action(/^tpl:(.+)$/, async (ctx) => {
     await ctx.answerCbQuery();
     const templateId = ctx.match[1];
@@ -228,32 +212,31 @@ export function registerHandlers(bot, baseUrl) {
     analyticsRepo.track(userId, 'template_start', { templateId });
 
     const tpl = TEMPLATES[templateId];
-    if (!tpl) return ctx.reply('Шаблон не найден.');
+    if (!tpl) return ctx.reply('Template not found.');
 
     setState(userId, `template:${templateId}:1`, { templateId, answers: {} });
     await ctx.replyWithMarkdown(tpl.steps[0].question);
   });
 
-  // Выбор сегмента рассылки
   bot.action(/^segment:(.+)$/, async (ctx) => {
     await ctx.answerCbQuery();
     const segment = ctx.match[1];
     const userId = String(ctx.from.id);
     const state = getState(userId);
 
-    if (!state.data?.text) return ctx.reply('Текст рассылки не найден. Начните заново: /broadcast');
+    if (!state.data?.text) return ctx.reply('Broadcast text not found. Start over: /broadcast');
 
     mergeData(userId, { segment });
     setState(userId, 'broadcast:confirm', state.data);
 
     const users = getUserCountBySegment(segment);
     await ctx.replyWithMarkdown(
-      `📢 *Подтверждение рассылки*\n\n` +
-      `Текст:\n${state.data.text}\n\n` +
-      `Сегмент: *${segmentLabel(segment)}* (~${users} чел.)\n\n` +
-      `Отправить сейчас?`,
+      `📢 *Confirm Broadcast*\n\n` +
+      `Message:\n${state.data.text}\n\n` +
+      `Segment: *${segmentLabel(segment)}* (~${users} users)\n\n` +
+      `Send now?`,
       Markup.inlineKeyboard([
-        [Markup.button.callback('✅ Да, отправить', 'broadcast:send'), Markup.button.callback('❌ Отмена', 'broadcast:cancel')],
+        [Markup.button.callback('✅ Yes, send', 'broadcast:send'), Markup.button.callback('❌ Cancel', 'broadcast:cancel')],
       ])
     );
   });
@@ -264,56 +247,52 @@ export function registerHandlers(bot, baseUrl) {
     const state = getState(userId);
     clearState(userId);
 
-    await ctx.reply('📤 Начинаю рассылку...');
+    await ctx.reply('📤 Sending broadcast...');
     try {
       const result = await broadcastService.sendNow({ text: state.data.text, segment: state.data.segment, createdBy: userId });
-      await ctx.replyWithMarkdown(`✅ Рассылка завершена:\n• Отправлено: *${result.sent}*\n• Ошибок: ${result.failed}`);
+      await ctx.replyWithMarkdown(`✅ Broadcast complete:\n• Sent: *${result.sent}*\n• Failed: ${result.failed}`);
     } catch (err) {
-      await ctx.reply(`❌ Ошибка: ${err.message}`);
+      await ctx.reply(`❌ Error: ${err.message}`);
     }
   });
 
   bot.action('broadcast:cancel', async (ctx) => {
     await ctx.answerCbQuery();
     clearState(String(ctx.from.id));
-    await ctx.reply('❌ Рассылка отменена.');
+    await ctx.reply('❌ Broadcast cancelled.');
   });
 
-  // ── Текстовые сообщения — FSM ─────────────────────────────────────────────
+  // ── Text messages — FSM ───────────────────────────────────────────────────
   bot.on('text', async (ctx) => {
     const userId = String(ctx.from.id);
     const text = ctx.message.text;
     touchUser(ctx.from);
 
-    // Логируем входящее сообщение
     dialogRepo.append({ userId, role: 'user', text });
     analyticsRepo.track(userId, 'message');
 
     const state = getState(userId);
     const { step } = state;
 
-    // ── Broadcast: ввод текста ──────────────────────────────────────────────
     if (step === 'broadcast:compose') {
       if (!isAdmin(userId)) { clearState(userId); return; }
       mergeData(userId, { text });
       setState(userId, 'broadcast:segment', state.data);
 
       await ctx.replyWithMarkdown(
-        '📊 *Выберите сегмент:*',
+        '📊 *Choose segment:*',
         Markup.inlineKeyboard([
-          [Markup.button.callback(`👥 Все пользователи`, 'segment:all')],
-          [Markup.button.callback('✅ Активные (7 дней)', 'segment:active'), Markup.button.callback('😴 Неактивные', 'segment:inactive')],
+          [Markup.button.callback(`👥 All users`, 'segment:all')],
+          [Markup.button.callback('✅ Active (7 days)', 'segment:active'), Markup.button.callback('😴 Inactive', 'segment:inactive')],
         ])
       );
       return;
     }
 
-    // ── Template FSM ─────────────────────────────────────────────────────────
     if (step.startsWith('template:')) {
       return handleTemplateStep(ctx, userId, text, state);
     }
 
-    // ── FAQ автоответ ─────────────────────────────────────────────────────────
     const faqAnswer = findAnswer(text);
     if (faqAnswer) {
       dialogRepo.append({ userId, role: 'bot', text: faqAnswer });
@@ -321,37 +300,33 @@ export function registerHandlers(bot, baseUrl) {
       return;
     }
 
-    // ── Fallback ──────────────────────────────────────────────────────────────
     dialogRepo.append({ userId, role: 'user', text, fallback: true });
     await ctx.replyWithMarkdown(
-      '🤔 Не нашёл ответа на ваш вопрос.\n\n' +
-      'Попробуйте:\n• /faq — частые вопросы\n• /templates — шаблоны\n• /menu — главное меню\n\n' +
-      '_Или опишите вопрос подробнее — я передам его команде._'
+      '🤔 I couldn\'t find an answer to your question.\n\n' +
+      'Try:\n• /faq — frequently asked questions\n• /templates — templates\n• /menu — main menu\n\n' +
+      '_Or describe your question in more detail._'
     );
   });
 
-  // ── Шаги шаблонов ────────────────────────────────────────────────────────
   async function handleTemplateStep(ctx, userId, text, state) {
-    const parts = state.step.split(':'); // template:payment:1
+    const parts = state.step.split(':');
     const templateId = parts[1];
     const stepNum = parseInt(parts[2], 10);
     const tpl = TEMPLATES[templateId];
 
     if (!tpl) {
       clearState(userId);
-      return ctx.reply('Шаблон не найден. Начните заново: /templates');
+      return ctx.reply('Template not found. Start over: /templates');
     }
 
     const currentStep = tpl.steps[stepNum - 1];
     mergeData(userId, { answers: { ...state.data.answers, [currentStep.key]: text } });
 
     if (stepNum < tpl.steps.length) {
-      // Следующий шаг
       const nextStep = tpl.steps[stepNum];
       setState(userId, `template:${templateId}:${stepNum + 1}`, getState(userId).data);
       await ctx.replyWithMarkdown(nextStep.question);
     } else {
-      // Все шаги пройдены — генерируем результат
       const answers = getState(userId).data.answers;
       clearState(userId);
 
@@ -362,8 +337,8 @@ export function registerHandlers(bot, baseUrl) {
       dialogRepo.append({ userId, role: 'bot', text: result });
 
       await ctx.replyWithMarkdown(result, Markup.inlineKeyboard([
-        [Markup.button.callback('📋 Другой шаблон', 'action:templates')],
-        [Markup.button.callback('📋 Главное меню', 'action:templates')],
+        [Markup.button.callback('📋 Another template', 'action:templates')],
+        [Markup.button.callback('🏠 Main menu', 'action:templates')],
       ]));
     }
   }
@@ -376,7 +351,7 @@ async function showTemplates(ctx) {
   analyticsRepo.track(userId, 'templates_view');
 
   await ctx.replyWithMarkdown(
-    '📋 *Выберите шаблон:*\n\n' +
+    '📋 *Choose a template:*\n\n' +
     Object.values(TEMPLATES).map((t) => `${t.emoji} *${t.name}* — ${t.description}`).join('\n'),
     Markup.inlineKeyboard(
       Object.values(TEMPLATES).map((t) => [Markup.button.callback(`${t.emoji} ${t.name}`, `tpl:${t.id}`)])
@@ -387,12 +362,12 @@ async function showTemplates(ctx) {
 async function sendStats(ctx) {
   const stats = analyticsService.getSummary();
   await ctx.replyWithMarkdown(
-    `📊 *Аналитика*\n\n` +
-    `👥 Всего пользователей: *${stats.totalUsers}*\n` +
-    `📅 DAU сегодня: *${stats.dauToday}*\n` +
-    `🔄 Конверсия start→template: *${stats.conversion.rate}%*\n` +
-    `📝 Шаблонов завершено: *${stats.templatesDone}*\n\n` +
-    `*Кнопки (CTR):*\n${Object.entries(stats.ctr).map(([k, v]) => `• ${k}: ${v}`).join('\n') || '—'}\n\n` +
+    `📊 *Analytics*\n\n` +
+    `👥 Total users: *${stats.totalUsers}*\n` +
+    `📅 DAU today: *${stats.dauToday}*\n` +
+    `🔄 Conversion start→template: *${stats.conversion.rate}%*\n` +
+    `📝 Templates completed: *${stats.templatesDone}*\n\n` +
+    `*Buttons (CTR):*\n${Object.entries(stats.ctr).map(([k, v]) => `• ${k}: ${v}`).join('\n') || '—'}\n\n` +
     `*Retention:*\n• D1: ${stats.retention.retDay1}\n• D7: ${stats.retention.retDay7}`
   );
 }
@@ -404,8 +379,8 @@ function getUserCountBySegment(segment) {
 }
 
 function segmentLabel(segment) {
-  if (segment === 'active') return 'Активные (7 дней)';
-  if (segment === 'inactive') return 'Неактивные';
-  if (segment.startsWith('tag:')) return `Тег: ${segment.slice(4)}`;
-  return 'Все пользователи';
+  if (segment === 'active') return 'Active (7 days)';
+  if (segment === 'inactive') return 'Inactive';
+  if (segment.startsWith('tag:')) return `Tag: ${segment.slice(4)}`;
+  return 'All users';
 }
