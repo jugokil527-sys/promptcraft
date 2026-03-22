@@ -628,10 +628,10 @@
 
   /* ── Block type selector ──────────────────────────────────────── */
   const PLACEHOLDERS = {
-    input:  'Например: тема, название бренда, вопрос пользователя…',
-    prompt: 'Например: сгенерируй ответ бота для саппорт-чата…',
-    rule:   'Например: отвечай на русском, до 100 слов, дружелюбно…',
-    output: 'Например: верни JSON {answer, confidence}…',
+    input:  'E.g.: topic, brand name, user question…',
+    prompt: 'E.g.: generate a reply for a support chat…',
+    rule:   'E.g.: reply in English, max 100 words, friendly tone…',
+    output: 'E.g.: return JSON {answer, confidence}…',
   };
 
   document.querySelectorAll('.bt').forEach(btn => {
@@ -658,7 +658,7 @@
     el.innerHTML = blocks.map((b, i) => `
       <div class="block-item">
         <span class="badge ${BADGE_CLS[b.type]}">${b.type}</span>
-        <span class="block-val" data-i="${i}" title="Нажми чтобы редактировать">${esc(b.value)}</span>
+        <span class="block-val" data-i="${i}" title="Click to edit">${esc(b.value)}</span>
         <button class="block-del" data-i="${i}">✕</button>
       </div>`).join('');
 
@@ -702,7 +702,7 @@
   document.getElementById('addBlockBtn').onclick = () => {
     const inp = document.getElementById('blockValue');
     const v = inp.value.trim();
-    if (!v) { inp.focus(); toast('Введи описание блока'); return; }
+    if (!v) { inp.focus(); toast('Enter block description'); return; }
     haptic();
     blocks.push({ type: activeType, value: v });
     inp.value = '';
@@ -715,7 +715,7 @@
 
   /* ── Save ──────────────────────────────────────────────────────── */
   document.getElementById('saveBtn').onclick = async () => {
-    const name = document.getElementById('projectName').value.trim() || 'Без названия';
+    const name = document.getElementById('projectName').value.trim() || 'Untitled';
     const btn  = document.getElementById('saveBtn');
     btn.disabled = true;
     try {
@@ -728,9 +728,9 @@
       projectId = d.id;
       document.getElementById('headerSub').textContent = name;
       btn.textContent = '✓'; btn.classList.add('ok');
-      haptic('medium'); toast('Сохранено');
-      setTimeout(() => { btn.textContent = 'Сохранить'; btn.classList.remove('ok'); }, 1800);
-    } catch (e) { toast('Ошибка: ' + e.message); }
+      haptic('medium'); toast('Saved');
+      setTimeout(() => { btn.textContent = 'Save'; btn.classList.remove('ok'); }, 1800);
+    } catch (e) { toast('Error: ' + e.message); }
     finally { btn.disabled = false; }
   };
 
@@ -744,7 +744,7 @@
     a.download = name.replace(/[^a-zA-Zа-яА-Я0-9_-]/g, '_') + '.json';
     a.click();
     URL.revokeObjectURL(a.href);
-    haptic(); toast('JSON экспортирован');
+    haptic(); toast('JSON exported');
   };
 
   /* ── Import JSON ───────────────────────────────────────────────── */
@@ -760,11 +760,11 @@
         projectId = null;
         blocks = data.blocks;
         document.getElementById('projectName').value = data.name || '';
-        document.getElementById('headerSub').textContent = data.name || 'импорт';
+        document.getElementById('headerSub').textContent = data.name || 'import';
         renderBlocks();
         document.querySelector('[data-tab="builder"]').click();
-        haptic('medium'); toast('Проект импортирован');
-      } catch (err) { toast('Ошибка: ' + err.message); }
+        haptic('medium'); toast('Project imported');
+      } catch (err) { toast('Error: ' + err.message); }
     };
     reader.readAsText(file);
     e.target.value = '';
@@ -775,13 +775,13 @@
     projectId = null;
     blocks = [];
     document.getElementById('projectName').value = '';
-    document.getElementById('headerSub').textContent = 'новый проект';
+    document.getElementById('headerSub').textContent = 'new project';
     document.getElementById('resultSection').classList.add('hidden');
     document.getElementById('out').textContent = '';
     document.getElementById('prompt').value = '';
     renderBlocks();
     document.querySelector('[data-tab="builder"]').click();
-    haptic(); toast('Новый проект');
+    haptic(); toast('New Project');
   };
 
   /* ── Run agent ─────────────────────────────────────────────────── */
@@ -807,7 +807,7 @@
       document.getElementById('resultSection').classList.remove('hidden');
       document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       haptic('medium');
-    } catch (e) { toast('Ошибка: ' + e.message); }
+    } catch (e) { toast('Error: ' + e.message); }
     finally {
       btn.disabled = false;
       document.getElementById('runIcon').outerHTML = '<span id="runIcon">▶</span>';
@@ -818,12 +818,12 @@
   /* ── Load projects list ────────────────────────────────────────── */
   async function loadProjects() {
     const el = document.getElementById('projectsList');
-    el.innerHTML = '<div style="text-align:center;padding:24px;color:var(--hint)">Загрузка…</div>';
+    el.innerHTML = '<div style="text-align:center;padding:24px;color:var(--hint)">Loading…</div>';
     try {
       const r = await fetch(`/api/users/${encodeURIComponent(userId)}/projects`);
       const list = await r.json();
       if (!list.length) {
-        el.innerHTML = '<div class="empty-state"><div class="es-icon">📁</div><p>Проектов пока нет.<br>Создай первый в конструкторе!</p></div>';
+        el.innerHTML = '<div class="empty-state"><div class="es-icon">📁</div><p>No projects yet.<br>Create your first one in the builder!</p></div>';
         return;
       }
       el.innerHTML = list.map(p => `
@@ -838,7 +838,7 @@
       el.querySelectorAll('.project-card').forEach(c => {
         c.onclick = () => openProject(c.dataset.id);
       });
-    } catch { el.innerHTML = '<div style="text-align:center;padding:24px;color:var(--danger)">Ошибка загрузки</div>'; }
+    } catch { el.innerHTML = '<div style="text-align:center;padding:24px;color:var(--danger)">Loading error</div>'; }
   }
 
   async function openProject(id) {
@@ -850,8 +850,8 @@
       document.getElementById('headerSub').textContent = d.name || '';
       renderBlocks();
       document.querySelector('[data-tab="builder"]').click();
-      haptic(); toast('Проект загружен');
-    } catch { toast('Ошибка загрузки'); }
+      haptic(); toast('Project loaded');
+    } catch { toast('Loading error'); }
   }
 
   /* ── Project templates data ────────────────────────────────────── */
@@ -859,85 +859,85 @@
     {
       id: 'tpl-shop',
       icon: '🛒', iconBg: '#dbeafe',
-      title: 'Интернет-магазин',
-      tag: 'Продажи',
-      desc: 'Бот-витрина с каталогом товаров и приёмом заявок на покупку.',
-      meta: '4 блока · Готов к запуску',
+      title: 'Online Store',
+      tag: 'Sales',
+      desc: 'Product catalogue bot that accepts purchase requests.',
+      meta: '4 blocks · Ready to launch',
       blocks: [
-        { type: 'input',  value: 'Название товара или категория, которую ищет покупатель' },
-        { type: 'prompt', value: 'Покажи товары из каталога по запросу пользователя. Для каждого укажи: название, цену, краткое описание и как заказать.' },
-        { type: 'rule',   value: 'Отвечай на русском, дружелюбно. Если товара нет — предложи похожий. Не обещай то, чего нет в каталоге.' },
-        { type: 'output', value: 'Список подходящих товаров с ценами и кнопкой «Заказать»' },
+        { type: 'input',  value: 'Product name or category the buyer is looking for' },
+        { type: 'prompt', value: 'Show products from the catalogue based on the user request. For each include: name, price, short description and how to order.' },
+        { type: 'rule',   value: 'Reply in English, friendly tone. If item not found — suggest similar. Never promise what is not in the catalogue.' },
+        { type: 'output', value: 'List of matching products with prices and an Order button' },
       ],
     },
     {
       id: 'tpl-leads',
       icon: '📋', iconBg: '#dcfce7',
-      title: 'Сбор заявок',
-      tag: 'Лидогенерация',
-      desc: 'Бот собирает контакты и квалифицирует лиды по твоим критериям.',
-      meta: '4 блока · Готов к запуску',
+      title: 'Lead Collection',
+      tag: 'Lead Gen',
+      desc: 'Bot collects contacts and qualifies leads by your criteria.',
+      meta: '4 blocks · Ready to launch',
       blocks: [
-        { type: 'input',  value: 'Имя, контакт (телефон/email), описание задачи или запроса пользователя' },
-        { type: 'prompt', value: 'Веди дружелюбный диалог для сбора заявки. Уточни детали задачи, бюджет и сроки. Подтверди, что заявка принята.' },
-        { type: 'rule',   value: 'Не давить. Если человек не хочет оставлять контакт — предложи альтернативу. Отвечай на русском.' },
-        { type: 'output', value: 'Подтверждение заявки и следующий шаг: когда перезвонят / напишут' },
+        { type: 'input',  value: 'Name, contact (phone/email), description of the task or request' },
+        { type: 'prompt', value: 'Conduct a friendly dialogue to collect the lead. Clarify task details, budget and timeline. Confirm the request was received.' },
+        { type: 'rule',   value: 'No pressure. If the person does not want to share contact — offer an alternative. Reply in English.' },
+        { type: 'output', value: 'Request confirmation and next step: when they will be contacted' },
       ],
     },
     {
       id: 'tpl-faq',
       icon: '🤖', iconBg: '#f3e8ff',
-      title: 'Поддержка / FAQ',
-      tag: 'Поддержка',
-      desc: 'Автоматически отвечает на типовые вопросы и снижает нагрузку на команду.',
-      meta: '4 блока · Готов к запуску',
+      title: 'Support / FAQ',
+      tag: 'Support',
+      desc: 'Automatically answers common questions and reduces team workload.',
+      meta: '4 blocks · Ready to launch',
       blocks: [
-        { type: 'input',  value: 'Вопрос пользователя о продукте, услуге или процессе' },
-        { type: 'prompt', value: 'Дай точный ответ на вопрос, опираясь только на информацию о продукте. Если ответа нет — вежливо перенаправь к специалисту.' },
-        { type: 'rule',   value: 'Отвечай кратко — до 3 предложений. Если не знаешь ответа — не придумывай. Тон: дружелюбный и профессиональный.' },
-        { type: 'output', value: 'Чёткий ответ на вопрос или переадресация к живому сотруднику' },
+        { type: 'input',  value: 'User question about a product, service or process' },
+        { type: 'prompt', value: 'Give an accurate answer based only on product information. If no answer — politely redirect to a specialist.' },
+        { type: 'rule',   value: 'Reply briefly — up to 3 sentences. If unsure — do not make things up. Tone: friendly and professional.' },
+        { type: 'output', value: 'Clear answer or redirect to a live agent' },
       ],
     },
     {
       id: 'tpl-promo',
       icon: '🎁', iconBg: '#fef3c7',
-      title: 'Промокоды и скидки',
-      tag: 'Маркетинг',
-      desc: 'Бот выдаёт промокоды, объясняет условия акции и отвечает на вопросы.',
-      meta: '4 блока · Готов к запуску',
+      title: 'Promo Codes',
+      tag: 'Marketing',
+      desc: 'Bot issues promo codes, explains offer terms and answers questions.',
+      meta: '4 blocks · Ready to launch',
       blocks: [
-        { type: 'input',  value: 'Запрос на получение промокода или вопрос об условиях акции' },
-        { type: 'prompt', value: 'Объясни условия акции, выдай промокод и расскажи как им воспользоваться. Если акция закончилась — предложи что-то взамен.' },
-        { type: 'rule',   value: 'Один промокод — одному пользователю. Не раскрывай внутренние системные данные. Отвечай на русском.' },
-        { type: 'output', value: 'Промокод + инструкция применения + срок действия' },
+        { type: 'input',  value: 'Request for a promo code or question about offer terms' },
+        { type: 'prompt', value: 'Explain the offer terms, issue the promo code and explain how to use it. If the offer has ended — suggest an alternative.' },
+        { type: 'rule',   value: 'One promo code per user. Do not reveal internal system data. Reply in English.' },
+        { type: 'output', value: 'Promo code + usage instructions + expiry date' },
       ],
     },
     {
       id: 'tpl-booking',
       icon: '📅', iconBg: '#fce7f3',
-      title: 'Запись на услугу',
-      tag: 'Бронирование',
-      desc: 'Бот записывает клиентов, уточняет детали и подтверждает время.',
-      meta: '4 блока · Готов к запуску',
+      title: 'Appointment Booking',
+      tag: 'Booking',
+      desc: 'Bot books clients, clarifies details and confirms the time.',
+      meta: '4 blocks · Ready to launch',
       blocks: [
-        { type: 'input',  value: 'Услуга, желаемая дата и время, имя клиента' },
-        { type: 'prompt', value: 'Запиши клиента на услугу. Уточни удобное время, подтверди запись, напомни что взять с собой или как подготовиться.' },
-        { type: 'rule',   value: 'Предлагай только реально доступное время. Записывай точную дату и имя. Подтверждай каждую запись явно.' },
-        { type: 'output', value: 'Подтверждение записи: услуга, дата, время, адрес или ссылка' },
+        { type: 'input',  value: 'Service, preferred date and time, client name' },
+        { type: 'prompt', value: 'Book the client for a service. Confirm a convenient time, confirm the booking, remind what to bring or how to prepare.' },
+        { type: 'rule',   value: 'Only offer actually available times. Record exact date and name. Confirm every booking explicitly.' },
+        { type: 'output', value: 'Booking confirmation: service, date, time, address or link' },
       ],
     },
     {
       id: 'tpl-content',
       icon: '📢', iconBg: '#ecfdf5',
-      title: 'Контент и подписка',
-      tag: 'Медиа',
-      desc: 'Бот рассказывает о контенте, принимает подписку и отправляет обновления.',
-      meta: '4 блока · Готов к запуску',
+      title: 'Content & Subscription',
+      tag: 'Media',
+      desc: 'Bot presents content, accepts subscriptions and sends updates.',
+      meta: '4 blocks · Ready to launch',
       blocks: [
-        { type: 'input',  value: 'Интерес пользователя или тема, на которую он хочет получать контент' },
-        { type: 'prompt', value: 'Подбери релевантный контент по теме пользователя. Предложи подписаться на обновления, объясни что получит подписчик.' },
-        { type: 'rule',   value: 'Не спамить. Только полезный контент по теме. Давать реальную ценность в первом же сообщении.' },
-        { type: 'output', value: 'Рекомендованный контент + предложение подписки с описанием выгод' },
+        { type: 'input',  value: 'User interest or topic they want to receive content about' },
+        { type: 'prompt', value: 'Suggest relevant content based on the user topic. Offer to subscribe to updates, explain what the subscriber will receive.' },
+        { type: 'rule',   value: 'No spam. Only useful on-topic content. Deliver real value in the very first message.' },
+        { type: 'output', value: 'Recommended content + subscription offer with benefits' },
       ],
     },
   ];
@@ -968,7 +968,7 @@
         </div>
         <div class="tpl-card-desc">${esc(t.desc)}</div>
         <div class="tpl-card-meta">📦 ${esc(t.meta)}</div>
-        <button class="btn-use-tpl" data-tpl="${t.id}">Использовать шаблон →</button>
+        <button class="btn-use-tpl" data-tpl="${t.id}">Use template →</button>
       </div>`).join('');
 
     el.querySelectorAll('.btn-use-tpl').forEach(btn => {
@@ -986,11 +986,11 @@
     document.getElementById('headerSub').textContent = tpl.title;
     document.getElementById('resultSection').classList.add('hidden');
     document.getElementById('out').textContent = '';
-    document.getElementById('prompt').value = 'Опиши этот сценарий бота подробнее и предложи тексты для каждого шага диалога с пользователем.';
+    document.getElementById('prompt').value = 'Describe this bot scenario in detail and suggest copy for each step of the user dialogue.';
     renderBlocks();
     document.querySelector('[data-tab="builder"]').click();
     haptic('medium');
-    toast('Шаблон загружен — настрой под себя');
+    toast('Template loaded — customize it');
 
   }
 
@@ -1136,7 +1136,7 @@
         </div>
       </div>
 
-      <div class="guide-section-label">Шаги</div>
+      <div class="guide-section-label">Steps</div>
       ${g.steps.map((s, i) => `
         <div class="guide-step">
           <div class="guide-step-num">${i + 1}</div>
@@ -1190,11 +1190,11 @@
 
   document.getElementById('deployConfirm').onclick = async () => {
     const token = document.getElementById('botTokenInput').value.trim();
-    if (!token) { toast('Введи токен бота'); return; }
+    if (!token) { toast('Enter bot token'); return; }
 
     const btn = document.getElementById('deployConfirm');
     btn.disabled = true;
-    btn.textContent = 'Создаю…';
+    btn.textContent = 'Creating…';
 
     const scenario = getScenario();
 
@@ -1211,7 +1211,7 @@
       document.getElementById('botTokenInput').value = '';
 
       // Автосохранение проекта (задача 4)
-      const name = document.getElementById('projectName').value.trim() || 'Проект ' + d.username;
+      const name = document.getElementById('projectName').value.trim() || 'Project ' + d.username;
       fetch('/api/projects', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId, name, blocks }),
@@ -1219,20 +1219,20 @@
 
       document.getElementById('deploySuccess').innerHTML = `
         <div class="ds-icon">🎉</div>
-        <div class="ds-name">@${esc(d.username)} готов!</div>
+        <div class="ds-name">@${esc(d.username)} is live!</div>
         <div style="margin-top:6px">
-          <a class="ds-link" href="${esc(d.link)}" target="_blank">Открыть бота →</a>
+          <a class="ds-link" href="${esc(d.link)}" target="_blank">Open bot →</a>
         </div>`;
       document.getElementById('deploySuccess').classList.remove('hidden');
       document.getElementById('serverDeployBlock').classList.remove('hidden');
       lastDeployedBot = d;
       haptic('medium');
-      toast('Бот создан и готов к работе!', 3000);
+      toast('Bot created and ready!', 3000);
     } catch (e) {
-      toast('Ошибка: ' + e.message, 4000);
+      toast('Error: ' + e.message, 4000);
     } finally {
       btn.disabled = false;
-      btn.textContent = 'Создать →';
+      btn.textContent = 'Create →';
     }
   };
 
@@ -1241,14 +1241,14 @@
 
   document.getElementById('ideaRunBtn').onclick = async () => {
     const idea = document.getElementById('ideaInput').value.trim();
-    if (!idea) { document.getElementById('ideaInput').focus(); toast('Опиши идею'); return; }
+    if (!idea) { document.getElementById('ideaInput').focus(); toast('Describe your idea'); return; }
 
     const btn   = document.getElementById('ideaRunBtn');
     const icon  = document.getElementById('ideaRunIcon');
     const label = document.getElementById('ideaRunLabel');
     btn.disabled = true;
     icon.outerHTML = '<span class="spinner" id="ideaRunIcon"></span>';
-    label.textContent = 'Думаю…';
+    label.textContent = 'Thinking…';
 
     const prompt =
 `Пользователь описал идею Telegram-бота: "${idea}"
@@ -1304,11 +1304,11 @@
       document.getElementById('ideaResult').classList.remove('hidden');
       document.getElementById('ideaResult').scrollIntoView({ behavior: 'smooth', block: 'start' });
       haptic('medium');
-    } catch (e) { toast('Ошибка: ' + e.message, 4000); }
+    } catch (e) { toast('Error: ' + e.message, 4000); }
     finally {
       btn.disabled = false;
       document.getElementById('ideaRunIcon').outerHTML = '<span id="ideaRunIcon">✨</span>';
-      label.textContent = 'Получить план';
+      label.textContent = 'Get Plan';
     }
   };
 
@@ -1316,13 +1316,13 @@
     if (!ideaSuggestedBlocks.length) { toast('Нет блоков для применения'); return; }
     blocks = ideaSuggestedBlocks.map(b => ({ ...b }));
     const idea = document.getElementById('ideaInput').value.trim().slice(0, 50);
-    document.getElementById('projectName').value = idea || 'Проект из идеи';
-    document.getElementById('headerSub').textContent = idea || 'Проект из идеи';
+    document.getElementById('projectName').value = idea || 'Idea Project';
+    document.getElementById('headerSub').textContent = idea || 'Idea Project';
     document.getElementById('resultSection').classList.add('hidden');
     renderBlocks();
     document.querySelector('[data-tab="builder"]').click();
     haptic('medium');
-    toast('Блоки загружены — запусти агента!');
+    toast('Blocks loaded — run the agent!');
   };
 
   /* ── Export ─────────────────────────────────────────────────────── */
@@ -1361,7 +1361,7 @@ ${scenario || '(сценарий не сгенерирован)'}
 Всегда следуй сценарию. Не выходи за рамки своей роли.`;
 
     downloadFile(`${safeFilename(name)}_prompt.txt`, content);
-    haptic(); toast('Промпт экспортирован');
+    haptic(); toast('Prompt exported');
   };
 
   // Экспорт всего — JSON со всем проектом + промпт для AI
@@ -1388,7 +1388,7 @@ ${scenario || '(сценарий не сгенерирован)'}
     };
 
     downloadFile(`${safeFilename(name)}_full.json`, JSON.stringify(data, null, 2), 'application/json');
-    haptic(); toast('Полный экспорт готов');
+    haptic(); toast('Full export ready');
   };
 
   /* ── Server deploy ──────────────────────────────────────────────── */
@@ -1397,8 +1397,8 @@ ${scenario || '(сценарий не сгенерирован)'}
     const password = document.getElementById('serverPass').value;
     const logEl = document.getElementById('serverDeployLog');
 
-    if (!host || !password) { toast('Введи IP и пароль'); return; }
-    if (!lastDeployedBot) { toast('Сначала создай бота'); return; }
+    if (!host || !password) { toast('Enter IP and password'); return; }
+    if (!lastDeployedBot) { toast('Create a bot first'); return; }
 
     const btn = document.getElementById('serverDeployBtn');
     btn.disabled = true; btn.textContent = '⏳ Деплой...';
@@ -1419,14 +1419,14 @@ ${scenario || '(сценарий не сгенерирован)'}
       });
       const d = await r.json();
       if (d.logs) logEl.textContent = d.logs.join('\n');
-      if (!r.ok) throw new Error(d.error || 'Ошибка деплоя');
+      if (!r.ok) throw new Error(d.error || 'Deploy error');
       haptic('heavy');
-      toast('Бот задеплоен на сервер! 🚀', 4000);
-      btn.textContent = '✅ Задеплоен';
+      toast('Bot deployed to server! 🚀', 4000);
+      btn.textContent = '✅ Deployed';
     } catch (e) {
       logEl.textContent += '\n❌ ' + e.message;
       toast('Ошибка: ' + e.message, 5000);
-      btn.disabled = false; btn.textContent = '🚀 Задеплоить';
+      btn.disabled = false; btn.textContent = '🚀 Deploy';
     }
   };
 
@@ -1443,11 +1443,11 @@ ${scenario || '(сценарий не сгенерирован)'}
 
   document.getElementById('fixConfirm').onclick = async () => {
     const problem = document.getElementById('fixInput').value.trim();
-    if (!problem) { toast('Опиши проблему'); return; }
+    if (!problem) { toast('Describe the problem'); return; }
 
     const btn = document.getElementById('fixConfirm');
     btn.disabled = true;
-    btn.textContent = 'Чиню…';
+    btn.textContent = 'Fixing…';
 
     const currentScenario = getScenario();
     const fixPrompt = `Текущий сценарий бота:\n\n${currentScenario}\n\n---\nПроблема: ${problem}\n\nИсправь сценарий, чтобы устранить проблему. Верни полный обновлённый сценарий.`;
@@ -1466,12 +1466,12 @@ ${scenario || '(сценарий не сгенерирован)'}
       document.getElementById('fixInput').value = '';
       document.getElementById('deploySuccess').classList.add('hidden');
       haptic('medium');
-      toast('Сценарий исправлен!', 3000);
+      toast('Scenario fixed!', 3000);
     } catch (e) {
-      toast('Ошибка: ' + e.message, 4000);
+      toast('Error: ' + e.message, 4000);
     } finally {
       btn.disabled = false;
-      btn.textContent = 'Починить →';
+      btn.textContent = 'Fix →';
     }
   };
 
