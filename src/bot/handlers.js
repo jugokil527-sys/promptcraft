@@ -69,8 +69,8 @@ export function registerHandlers(bot, baseUrl) {
     if (!existing?.onboarded) {
       // Первый визит — онбординг
       userRepo.upsert({ id: userId, onboarded: true });
+      await ctx.reply(`👋 Привет, ${ctx.from.first_name}! Рад видеть тебя здесь.`);
       await ctx.replyWithMarkdown(
-        `👋 Привет, ${ctx.from.first_name}!\n\n` +
         `*PromptCraft* — конструктор Telegram-ботов с AI.\n\n` +
         `За 3 шага создай:\n` +
         `• 💳 Бота для приёма оплат\n` +
