@@ -2,7 +2,8 @@
  * Deploy service — деплоит сгенерированного бота на VPS через SSH.
  * Стек на сервере: Node.js + PM2
  */
-import { Client } from 'ssh2';
+let Client;
+try { ({ Client } = await import('ssh2')); } catch { Client = null; }
 
 const OPENROUTER_KEY = process.env.OPENROUTER_API_KEY || '';
 const OPENROUTER_MODEL = (process.env.OPENROUTER_MODEL || 'deepseek/deepseek-chat').trim();
@@ -120,6 +121,7 @@ function runSSH(host, password, commands, onLog) {
 
 /** Основная функция деплоя */
 export async function deployBot({ host, password, botId, botToken, scenario }, onLog) {
+  if (!Client) throw new Error('SSH модуль не установлен. Обратитесь к поддержке.');
   const dir = `/opt/promptcraft/${botId}`;
   const log = (msg) => { console.log(msg); onLog?.(msg); };
 
